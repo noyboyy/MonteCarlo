@@ -1,0 +1,84 @@
+q2
+
+Preamble
+Consider the sequence  defined recursively via , with .
+Exercises
+Compute  and , storing the results in eponymous variables (i.e. store the value of  in a variable named x1, etc. for  and ). Do not use a loop yet (the point here is to make sure you know what code needs to go inside the loop in the next exercise).
+Use a for loop to store the vector  in a variable named x.  Ensure that x is a  row matrix.  Note that it is good practice to pre-allocate memory to x here, for example by initializing x=Inf*ones(1,101).
+
+x_not = 175
+x1_a = (47689* x_not +377)
+b = 4096
+x1 = rem(x1_a, b)
+x_not = x1
+x1_a = (47689* x_not +377)
+x2 = rem(x1_a, b)
+x_not = x2
+x1_a = (47689* x_not +377)
+x3 = rem(x1_a, b)
+
+%part b%
+x = Inf*ones(1,101)
+x_not=175
+x(1) = x_not
+for i = 2:101
+    x1_a = (47689* x_not +377);
+    b = 4096;
+    x6 = rem(x1_a, b);
+    x(i) = x6;
+    x_not=x6;
+end
+x
+
+
+q3
+
+Preamble
+I don't love the hist command in Matlab.  When possible I prefer using bar to create histograms, because it gives me a bit more control.  In this problem I will walk you through the procedure I used to create the histogram of the pseudo-random sequence that we looked at in our first lecture.  Note that the bar heights in my histogram correspond to the fraction of terms in each of the intervals , , , .
+The first (uneditable) line of your script here will read the first 1001 terms of my sequence into your workspace and store it in a variable named u.
+Exercises
+Create a logical vector v1 such that v1(i) is equal to logical 1 if u(i) exceeds 0.25, and is equal to logical 0 otherwise.  Note that you will need the relational operator >= here.
+Create a logical vector v2 such that v2(i) is equal to logical 1 if u(i) does not exceed 0.50, and is equal to logical 0 otherwise.  Note that you will need the relational operator <= here.
+Create a logical vector v3 such that v3(i) is equal to logical 1 if u(i) lies in the interval .  Note that you will need to use v1, v2 and the logical operator &.
+How many terms lie in the interval ?  What fraction of terms lie in the interval ?  Please store your answers in variables named number and fraction, respectively.
+Create the variables L=[0:0.1:0.9] and U=[0.1:0.1:1].  Then create the  matrix f for which f(i) is equal to the fraction of terms that lie in the interval .  It is recommended that you use a for loop here, but feel free to use brute force if you prefer that.
+Use bar(m,f) to recreate my histogram from lecture, where m=(L+U)/2 contains the midpoints of each interval.  Use ylim to ensure the vertical axis goes from 0 to 0.15.  Compare your histogram to mine, and make sure they look the same.
+
+u=load('prng_sequence.txt');
+
+for i=1:1001
+    v1(i) = u(i) >= 0.25; % This will create a logical vector with 1 where the condition is met and 0 otherwise
+end
+   
+    
+for i=1:1001
+    v2(i) = u(i) <= 0.5; % This will create a logical vector with 1 where the condition is met and 0 otherwise
+end
+
+for i=1:1001
+    v3(i) = u(i) >= .25 & u(i) <= 0.5; % This will create a logical vector with 1 where the condition is met and 0 otherwise
+end
+for i=1:1001
+    v4(i) = u(i) < .25 | u(i) >0.5; % This will create a logical vector with 1 where the condition is met and 0 otherwise
+end
+
+number = sum(v3)
+checker1 = sum(v2)
+checker2= sum(v1)
+total = sum(u)
+checker3 = sum(v4)
+fraction = number/(1001)
+L=[0:0.1:0.9] 
+U=[0.1:0.1:1]
+num = length(L)
+for i=1:num
+    for k=1:1001
+        holder(k) = u(k)>L(i) & u(k) < U(i);
+    end
+    f(i)=sum(holder)/1001
+end
+
+m=(L+U)/2
+bar(m,f)
+ylim([0, 0.15])
+    
