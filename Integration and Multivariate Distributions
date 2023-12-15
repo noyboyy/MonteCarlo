@@ -1,0 +1,194 @@
+Monte carlo estimate of integral
+
+In this problem, we will estimate the value of pi using Monte Carlo integration.
+Here we estimate the value of
+
+by Monte Carlo. 
+Type rng('default').
+Guess the exact value of the integral B using geometric intuition. Explain your reasoning. Type your answer into Gradescope.  
+Using n=10000 uniform random variables, estimate B.  Call this B. [Note: you may need to consider the transformation of the integral from 0 to 1]
+Convert your value of B to an estimate of the number pi.  Call this Pi_est.
+Create a 95% confidence interval for Pi_est and store it in a row vector called CI (i.e. CI=[lower_bound  upper_bound]).
+Determine how many points we require to be 95% confident that our estimate for Pi is within 0.005 of the true value.  Call this number nn. 
+
+rng('default')
+n = 10000
+u = rand(1,n);
+f = @(x) sqrt(1-x.^2)
+integral_B = integral(f,-1,1);
+
+x=2*sqrt(1-(2*u-1).^2)
+std = std(x)
+B = mean(x)
+Pi_est = 2*B
+CI = [Pi_est - (1.96*std)/sqrt(n), Pi_est + (1.96*std)/sqrt(n)]
+
+nn = (1.96*std/(0.01/2))^2
+
+
+
+Bivarite dsitribtuon - chess
+Assessment
+Let the RVs X and Y represent the outcome of rounds of chess for some chess player, for the first and second round, respectively.  The support of X and Y is S={0,1,2} where 0 represents a win, 1 a loss, and 2 a draw. The joint pmf is given by:
+
+Complete the following:
+Type rng('default').
+Set n=1000.
+Determine the marginal pmf of X by hand. Store the result in a row vector called M with M(1)=P(X=0), M(2)=P(X=1), etc.
+Determine the 3 conditional pmfs for Y|X by hand.  Store the result in a matrix called C with C(i+1,j+1)=P(X=i|X=j) for i,j=0,1,2.
+Generate a vector of n uniform [0,1] random variables.  Call it u1.
+Generate a vector of n realizations of X using the marginal pmf and logical indexing on u1. Call this x.  [Recall the '&' operator in Matlab to combine multiple conditions]
+Generate a vector of n uniform [0,1] random variables.  Call it u2.
+Now, using the conditional pdf for Y|X, generate a vector of n realizations of Y using logical indexing on u2 and x. Call it y.
+Define an empty n-by-20 matrix called Rounds.
+Set the first and second columns of Rounds to equal x and y respectively.
+Suppose we want to simulate n pathways of 20 rounds of chess played in a row, and store them in the matrix C (note that we have already simulated the first two rounds).  Simulate the remaining rounds of chess and store them in C.  
+Compute the average proportion of wins, losses, and draws over 20 rounds, and store them in a row vector called P_outcomes.  [Note: mean(A) or mean(A,1) will take the mean of each column in A, and mean(A,2) will take the mean of each row in 
+
+rng('default')
+n=1000
+x = zeros(1,n);
+y = zeros(1,n);
+M = [0.3+0.15+0.05 0.18+0.2475+0.0225 0.0225+0.02+0.0075]
+C = [0.3/0.5 0.15/0.5 0.05/.5,
+    0.18/.45 .2475/.45 .0225/.45, 
+    .0225/0.05 0.02/0.05 0.0075/.05]
+%generate numbers
+u1 = rand(1,n);
+%indexing
+ 
+x(u1 <=0.5) = 0;
+x(u1 >0.5 & u1<=0.95)= 1;
+x(u1>0.95) = 2;
+x;
+
+u2 = rand(1,n);
+
+y(x==0 & u2<=0.6) = 0;
+y(x==0 & 0.6<u2 & u2<=0.9)= 1;
+y(x==0 &u2>0.9)=2;
+
+y(x==1 & u2<=0.4) = 0;
+y(x==1 & 0.4<u2 & u2<=0.95)= 1;
+y(x==1 &u2>0.95)=2;
+
+y(x==2 & u2<=0.45) = 0;
+y(x==2 & 0.45<u2 & u2<=0.85)= 1;
+y(x==2 &u2>0.85)=2;
+
+Rounds = zeros(n,20);
+Rounds(:,1) = x;
+Rounds(:,2) = y;
+x1 = zeros(1,n);
+y1 = zeros(1,n);
+for i=3:20
+    u3=rand(1,n)
+    x1 = Rounds(:,i-1)'
+    x2(x1==0 & u3<=0.6) = 0;
+    x2(x1==0 & 0.6<u3 & u3<=0.9)= 1;
+    x2(x1==0 &u3>0.9)=2;
+    
+    x2(x1==1 & u3<=0.4) = 0;
+    x2(x1==1 & 0.4<u3 & u3<=0.95)= 1;
+    x2(x1==1 &u3>0.95)=2;
+    
+    x2(x1==2 & u3<=0.45) = 0;
+    x2(x1==2 & 0.45<u3 & u3<=0.85)= 1;
+    x2(x1==2 &u3>0.85)=2;
+    Rounds(:,i) = x2
+
+end
+
+
+
+Simulation of Trivariate NRV
+
+Description
+Let the Covariance Matrix of a multivariate normal random vector  be  so that 
+ for all 
+Note that a covariance matrix is symmetric and non-negative definite
+The Cholesky Decomposition of the covariance matrix C is of the form
+
+where  is a lower diagonal matrix with positive diagonal elements.
+Define  where 
+ is a vector of independent N(0,1) RVs
+ is a constant vector
+Then  is multivariate normal with mean vector  and Covariance matrix 
+Introduction
+Set the sample size to n=10000 and the seed of the generator to 300.
+Simulate 3 x n matrix of independent standard normal random variables using the randn function. Call this z.
+Uncomment and modify the first block of code to make a 3-panel figure that contains the scatterplots of the 3 different pairs of z components.
+Uncomment and modify the second block of code to make a 3-panel figure that contains the histograms of the 3 z components.
+Assessment
+Set the sample size to n=10000 and the seed of the generator to 300 (recall: rng(seed)).
+Uncomment the line to define the matrix C1.  Note that C1 is the same as the covariance matrix C2 with -0.8 changed to 0.8.
+Use matlab's eig function to compute the eigenvalues of C1. Call this eC1.
+Use matlab's chol function to (try to) compute the Cholesky decomposition of C1. Take note of the error message you get.
+Based on your error message, is it sufficient for a Matrix to be symmetric for it to be a valid covariance matrix? Type your answer into Gradescope.
+What method can you use to verify whether a symmetric matrix is a valid covariance matrix? (Hint: look at the eigenvalues). Type your answer into Gradescope.
+Uncomment the lines that define the mean vector m2 and matrix C2.
+Compute the Cholesky decomposition of C2, and take the transpose. Call this A2.
+Use the z from the practice part to generate normal random variables with mean vector m2 and covariance matrix C2. Call this r2
+Make a 3-panel figure that contains the scatterplots of the 3 different pairs of r2 components
+Make a 3-panel figure that contains the histograms of the 3 r2 components
+Save pictures of your plots from parts 11 and 12 into an image or pdf file and submit it to Gradescope. 
+
+
+% INTRODUCTION
+n=10000
+rng(300)
+
+%{
+figure
+hold on;
+subplot(1,3,1)
+plot(var1,var2,'.')    % Replace 'var1' and 'var2' with the first and second rows of z
+xlabel('Z_1')
+ylabel('Z_2')
+title('Z_1 vs Z_2')
+
+subplot(1,3,2)
+plot(var1,var2,'.')    % Replace 'var1' and 'var2' with the first and third rows of z
+xlabel('Z_1')
+ylabel('Z_3')
+title('Z_1 vs Z_3')
+
+subplot(1,3,3)
+plot(var1,var2,'.')    % Replace 'var1' and 'var2' with the second and third rows of z
+xlabel('Z_2')
+ylabel('Z_3')
+title('Z_2 vs Z_3')
+hold off;
+%}
+
+%{
+edges=-6:0.5:6   %  This variable is used below in the 'histogram' function, and sets the histogram range from -6 to 6 with bin width 0.5 
+
+figure
+hold on
+subplot(1,3,1)
+hist(var,edges)        % Replace 'var' with the first row of z
+title('Z_1')
+
+subplot(1,3,2)
+hist(var,edges)        % Replace 'var' with the second row of z
+title('Z_2')
+
+subplot(1,3,3)
+hist(var,edges)        % Replace 'var' with the third row of z
+title('Z_3')
+hold off
+%}
+
+
+%ASSESSMENT
+
+C1=[1 -.7 .6; -.7 1 .8;.6 .8 1];
+eC1 = eig(C1);
+
+C2=[1 -0.5 .6; -0.5 1 -.8;.6 -.8 1];
+m2=[-3; 3; 0];
+A2 = chol(C2);
+A2 = A2'
+z = randn(3,n);
+r2 = m2+A2*z
