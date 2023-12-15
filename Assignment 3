@@ -1,0 +1,125 @@
+Preamble
+In this problem we will compare two different methods for generating one observation from the  distribution.  The first approach (Exercises 1 through 3) will first simulate the outcome for each of 10 independent Bernoulli trials (each with success probability 20%) and then determine the total number of successes across all 10 trials.  The second approach (Exercise 4) will be a single call to Matlab's built-in binornd function.
+Exercises
+Use a seed of 52 to generate a 1x10 vector of random numbers.  Please store the result in a variable named u.
+Create a 1x10 vector z such that z(i)=1 if trial i produced a success, and z(i)=0 otherwise.
+Determine the total number of success across all 10 trials, and store the result in a variable named x1.
+Fix the seed at 52 once again, and then use binornd to generate a single observation from the  distribution (you may need to consult the help documentation).  Please store the result in a variable named x2.
+Compare the values of x1 and x2.  Does this give you have a sense of how binornd works?
+
+%part 1
+rng(52);
+u =rand(1,10);
+
+%part 2
+p = 0.2;
+z = (u<=p);
+
+%part 3
+x1=sum(z);
+
+%part 4
+rng(52);
+x2=binornd(10,0.2);
+
+
+
+q2
+Preamble
+Recall the basketball strategy example from lecture.  Here we are going to create a sample of 10,000 hypothetical outcomes (games) and use those outcomes to estimate the probability that Team B wins, under each of the two proposed strategies.
+Exercise
+Estimate the probability of winning under either strategy, by completing the following tasks.
+Set the seed at 44, then use binornd to generate ten thousand observation from the  distribution.  Store the result in a variable named sa, and ensure that sa is a 1x10000 row vector.  Note that sa(i) represents the number of successful shots for Team A in hypothetical game i.
+Set the seed at 78, then use binornd to generate ten thousand observation from the  distribution.  Store the result in a variable named sb2, and ensure that sb2 is a 1x10000 row vector.  Note that sb2(i) represents the number of successful shots for Team B in hypothetical game i, assuming they employ the two-point strategy.
+Set the seed at 78, then use binornd to generate ten thousdand observations from the  distribtion.  Store the result in a variable named sb3, and ensure that sb3 is a 1x10000 row vector.  Note that sb3(i) represents the number of successful shots for Team B in hypothetical game i, assuming they employ the three-point strategy.
+Create a 1x10000 vector pa such that pa(i) is equal to the number of points that Team A scores in game i.
+Create a 1x10000 vector pb2 such that pb2(i) is equal to the number of points that Team B scores in game i, if they employ the two-point strategy.
+Create a 1x10000 vector pb3 such that pb3(i) is equal to the number of points that Team B scores in game i, if they employ the three-point strategy.
+Create a 1x10000 logical vector v2, such that v2(i)=1 if Team B won game i with the two-point strategy.
+Create a 1x10000 logical vector v3, such that v3(i)=1 if Team B won game i using the three-point strategy.
+Estimate the probability that Team B wins with each strategy, storing the results in variables named pwin2 and pwin3, respectively.  Note that the command sum(v2) will return the number of elements in the vector v2 that are equal to 1.
+
+%part 1
+rng(44);
+sa = binornd(4,0.8,1,10000);
+
+%part 2 - 2 point strat
+rng(78);
+sb2 = binornd(2,0.75,1,10000);
+
+%part 3 - 3 point strat
+rng(78);
+sb3=binornd(2,0.4,1,10000);
+
+%part 4:
+pa = sa*1;
+
+%part 5:
+pb2 = sb2*2;
+
+%part 6:
+pb3 = sb3*3;
+
+%part 7:
+v2 = (pb2> pa+1);
+
+%part 8 ;
+v3 = (pb3 > pa+1);
+
+%part 9;
+pwin2 = sum(v2)/10000
+pwin3 = sum(v3)/10000
+
+
+
+q3
+Preamble
+In the St. Petersburg lottery, a fair coin is tossed until a head is observed.  The payout is , where  is the number of tosses required to produce the first head.  In the early  century, mathematicians were wrestling with the question "how much should a rational individual be willing to pay, in order to play one round of the SPL"?  An excellent synopsis of that discussion can be found here.  Before proceeding note that  is geometric with success probability , so  and  for 
+Convential wisdom at the time suggested that a rational individual should be willing to pay any amount up to and including the expected payout .  Indeed if I paid  then my net winnings would be  and my expected winnings would be .  The problem here is that , which suggests that the rational individual should be willing to pay any amount to play one round of the SPL.  This is clearly absurd, since the vast majority of the time the individual only wins a few dollars; for example , so there is a better-than-99% chance that we win less than .
+This is leads us to the famous St. Petersburg Paradox.  The rational individual should be willing to pay any amount to play one round of the SPL, but how could it be rational to pay more than a few dollars?  The discussion surrounding the paradox, and its resolution, led to important developments in the way we think about risk.
+Exercises
+Here we will investigate my cumulative net winnings through time, assuming I play the SPL repeatedly and pay  per round.
+Using a seed of 17463, generate 1000  variables using the method discussed in lecture on September 21.  Store the result in a variable named y, and ensure that y is a row vector.
+Create a vector w such that w(i) is my net winnings on round i.  Note that I paid ten dollars and received 2^x(i).
+Create a vector s such that s(i)=w(1)+w(2)+...+w(i) is my total winnings after i rounds.
+Execute the command plot(s) and inspect the output.
+
+
+%part 1
+p=0.5
+rng(17463)
+for i = 1:1000
+    y(i) = ceil(log(1-rand)/log(1-p));
+end
+
+
+%part 2
+w = 2.^(y)-10;
+
+%part 3
+s = cumsum(w)
+%part 4
+
+plot(s)
+
+q4
+Preamble
+Let  be a random variable with support  for some integer , and let .  In lecture we discussed a first principles method for simulating one realization of .  Given a random number , the idea is to find the minimum value of  for which , where .
+Exercises
+Consider the probability distribution  on .
+Fix the RNG seed at 793 and generate one observation from this probability distribution.  Store the result in a variable named x1.
+Fix the RNG seed at 987113 and generate one thousand observations from this probability distribution.  Store the result in a  variable named x2.  Note that it is probably easiest to use a for loop here, based off your code from the previous problem.
+
+
+%part 1
+
+p = [0.2 0.1 0.05 0.35 0.3];
+rng(793);
+x1 = min(find(rand<=cumsum(p)));
+
+%part 2
+rng(987113);
+p = [0.2 0.1 0.05 0.35 0.3];
+for i = 1:1000
+    x2(i) = min(find(rand<=cumsum(p)));
+end
