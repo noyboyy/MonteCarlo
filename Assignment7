@@ -1,0 +1,165 @@
+Preamble
+Consider the retirement saving example discussed in lecture on September 26 and October 19.  As mentioned in lecture, the underlying assumptions on contributions are that (i) the initial salary is $70,000, (ii) the salary grows by 2.5% per year and (iii) the contribution in any given year is a fixed percentage of the salary in that year.  Note that the numerical examples from lecture assumed a contribution rate of 10%.
+In this problem we will assume that our goal is to accumulate $1 million by the end of the accumulation phase, and investigate how the contribution rate influences the probability of achieving that goal.  Note that $1 million is the amount that many financial advisors would tell you that you need, in order to retire comfortably.
+Exercises
+The file 'wealth10.txt' is attached to this problem and contains accumulated wealth at the end of 20,000 hypothetical 30-year periods, assuming a contribution rate of 10%.  The files 'wealth15.txt' and 'wealth20.txt' contain corresponding data assuming contribution rates of 15% and 20%, respectively.  The same seed was used to produce all three files, which means that the market scenarios underlying each file are identical and the only difference is the contribution rate.
+Estimate the probability of achieving our million dollar goal with a 10% contribution rate, storing the result in a variable named p10.  Please construct a 99% confidence interval for this probability and store it in a  vector ci10.  You will need to use the function load to read the text file into your workspace.
+Repeat the previous exercise for contribution rates of 15% and 20%.  Please store the estimated probabilities in variables named p15 and p20, and the confidence intervals in vectors named ci15 and ci20.
+
+goal = 1000000
+confidence = 0.99
+
+%Loading in the data
+wealth10 = load('wealth10.txt');
+wealth15 = load('wealth15.txt');
+wealth20 = load('wealth20.txt');
+
+% part 1
+[p10, ci10] = estimator(wealth10, goal, confidence);
+
+%part 2
+[p15, ci15] = estimator(wealth15, goal, confidence);
+[p20, ci20] = estimator(wealth20, goal, confidence);
+
+function [prob, conf]  = estimator(wealth, goal, confidence)
+    prob = mean(wealth >= goal);
+    
+    zed = norminv(1-(1-confidence)/2)
+    std = sqrt((prob*(1-prob))/numel(wealth));
+    conf = prob + zed*[-std, std];
+end
+
+q2
+Preamble
+In this problem we will use Monte Carlo to estimate the value of the integral  with two-digit accuracy.
+Exercises
+Please complete the following tasks.
+Using a seed of 18, generate a  vector u of random numbers.
+Use the random numbers in u to estimate the value of , and store the result in a variable named I_hat1.
+How many random numbers would be required, in order to estimate the value of  with  confidence of two-digit accuracy?  Please use round to round your answer off, and store it in a variable named n_min.
+Using a seed of 18, estimate the value of  with  confidence of two-digit accuracy.  Store your estimate in a variable named I_hat2.
+
+% part 1 and part 2
+rng(18)
+u = rand(1,100)
+x = cos(exp(u))
+I_hat1 = mean(x)
+
+% part 3
+
+
+
+sig_hat = var(x)
+sig_hat = sqrt(sig_hat)
+
+
+zed = norminv(0.025)
+n_min =((zed *sig_hat)/(0.005))^2
+n_min = round(n_min,2)
+
+%part 4
+% cant figure out
+rng(18)
+u2= rand(1,31442)
+x = cos(exp(u2))
+I_hat2 = mean(x)
+
+
+
+
+
+
+q3Preamble
+In this problem we will use the Pareto distribution to estimate the value of the integral .
+Exercises
+Please complete each of the following tasks.
+Using a seed of 4418, generate a  vector u of random numbers.
+Transform u into a vector x of Pareto variables with parameter .
+Create a vector f such that f(i) is equal to (x(i)), where  is the Pareto density with parameter .
+Create a vector r such that r(i) is equal to the ratio of (i) our integrand to (ii) our Pareto density, evaluated at x(i).
+Estimate the value of  and store it in a variable named I_hat.
+Construct a 95% confidence interval for , storing the upper and lower limits in the variables named ci_hi and ci_lo, respectively.
+
+rng(4418)
+u = rand(1,1000);
+alpha = 2;
+% part 2
+for i = 1:1000
+    x(i) = (1 - u(i))^(-1/2);
+end
+
+%part 3
+
+
+for i = 1:1000
+    f(i) = 2 * 1/(x(i)^(3));
+end
+
+% part 4
+for i = 1:1000
+    k(i) = 1/(1+x(i)^(3));
+end
+r = zeros(1,1000);
+
+    r= k ./ f
+
+
+    % part 5
+I_hat = mean(r)
+
+% part 6
+sig_hat = std(r)
+zed = norminv(0.025)
+ci_hi = I_hat -( (sig_hat *zed)/sqrt(1000))
+ci_lo = I_hat +( (sig_hat *zed)/sqrt(1000))
+
+
+
+
+q4
+Preamble
+In this problem we are going to generate 1000 realizations of a trinomial pair , for particular values of ,  and .
+Exercises
+Please complete the following tasks, assuming ,  and .
+Using a seed of 1844 and binornd, generate 1000 realizations of  and store them in a  vector x.
+Using a seed of 5254 and binornd, generate a vector y such that y(i) is a drawing from the conditional distribution of , given that  is equal to x(i).  Although it is not necessary to use a loop here, I am going to ask that you do (otherwise I won't be able to test your code).
+Use corr to estimate the correlation between  and , and store the result in the variable est_corr.  Does the sign of the correlation make sense to yo
+
+rng(1844)
+x = binornd(30,0.2,1,1000);
+%part 2
+rng(5254)
+
+y = zeros(1, 1000);
+for i = 1:1000
+    y(i) = binornd(30 - x(i), 0.3 / (1 - 0.2)); 
+end
+
+%part 3
+vector =  corrcoef(x,y)
+est_corr = -0.2776
+
+q5
+Preamble
+In this problem we are going to generate 1000 realizations of a bivariate normal pair , for a particular value of .
+Exercises
+Please complete the following tasks, assuming .
+Using a seed of 1844 and randn, generate 1000 realizations of  and store them in a  vector x.
+Using a seed of 5254 and randn, generate a vector y such that y(i) is a drawing from the conditional distribution of , given that  is equal to x(i).  You can either use a loop, or vectorize and do thi in a single line.
+Use corr to estimate the correlation between  and , and store the result in the variable est_corr.  Does the sign of the correlation make sense to yo
+
+rng(1844)
+x = randn(1,1000);
+pho = -0.6;
+pho_sq = pho^2;
+%part 2
+rng(5254);
+y = zeros(1,1000);
+for i = 1:1000
+    y(i) = normrnd(pho*x(i) , sqrt(1-pho_sq));
+end
+
+%part 3
+y_er = randn(1,1000);
+vector =  corrcoef(x,y)
+est_corr = -.6287
