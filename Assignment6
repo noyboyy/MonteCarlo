@@ -1,0 +1,150 @@
+Preamble
+In this problem, we are going to investigate the behaviour of ,  and , where:
+ are i.i.d. observations from the Cauchy distribution.
+ is the positive part of .
+ is the negative part of .
+Exercises
+Please complete the following exercises.
+Use inverse transform to generate 5000 observations from the Cauchy distribution, storing them in a row vector x.  Please use a seed of 28624478.
+Compute the positive part of each Cauchy variable, storing them in a row vector y.  Note that y(i) should be equal to the positive part of x(i).
+Compute the negative part of each Cauchy variable, storing them in a row vector z.  Note that z(i) should be equal to the negative part of x(i).
+Construct a vector x_bar such that x_bar(i) is equal to the average of x(1), x(2), . . ., x(i).
+Repeat the above for y_bar and z_bar.
+I am not going to test the output of the next set of exercises, but I will be asking you to upload images of these plots to Gradescope.  In order to properly export a .pdf image you may need to work directly in Matlab or Octave.
+Use the command plot([1:5000],y_bar,'b',[1:5000],z_bar,'r') to visualize and compare the behaviour of  and .
+Use the command plot([1:5000],x_bar,'k',[1 5000],zeros(1,2),'r') to visualize the behaviour of .
+
+
+rng(28624478);
+n=5000
+u = rand(1,n);
+for i =1:n
+    x(i)=tan(pi*(u(i)-0.5))
+end
+
+%part 2
+y = max(0,x)
+%part 3
+z = -min(x,0)
+
+%part 4
+x_bar = cumsum(x) ./ [1:n]
+
+%part 5
+y_bar = cumsum(y) ./ [1:n]
+z_bar = cumsum(z) ./ [1:n]
+
+q2
+Preamble
+Under the martingale betting system the bettor doubles the stakes every time they lose a bet, with the hope that an eventual large win will wipe out all of the previous losses.  Here we will analyze the strategy in the context of roulette, but it should be noted that our general conclusions would (provably) be similar in the context of any casino game.
+Before we start, recall that a North American roulette wheel has 38 numbered slots, 18 of which are red.  If I place a bet of  on red and a red number is chosen, I receive my original  back, plus an additional , for a net profit of .  Otherwise my bet is not returend, for a net loss of .
+Now suppose I have a large bankroll, and am willing to risk a total of  dollars per night.  On each night, I will proceed as follows.
+Start with a  bet on red.  If I win I walk away, otherwise I continue.
+If the first bet is unsuccessful, my second bet will be  on red.  If I win I walk away, otherwise I continue.
+If the first two bets are unsuccessful, my third bet will be  on red.  If I win I walk away, otherwise I continue.
+If the first three bets are unsuccessful, my fourth bet will be  on red.  If I win I walk away, otherwise I will continue.
+If the first four bets are unsuccessful, my fifth bet will be  on red.  If I win I walk away, otherwise I will continue.
+If the first five bets are unsuccesful, then I have lost , so I am done for the night (recall that I was only willing to risk  per night).
+In order to analyze the strategy, let the random variable  denote the number of spins required, before the first red number appears.  Then  and:
+If  then I win the first bet, for a net profit of .
+If  then I lose my first bet () and win my second bet () for a net profit of .
+If  then I lose my first two bets ( and ) and win my third bet () for a net profit of .
+If  then I lose my first three bets (,  and ) and win my fourth bet () for a net profit of .
+If  then I lose my first four bets (, ,  and ) and win my fifth bet () for a net profit of .
+If  then I lose my first five bets for a net loss of .
+Now if  denotes my net winnings on any given night, then  if  and  if .
+Exercises
+Here we will use a relatively small sample size of  to get a preliminary estimates of and .  It is entirely possible to compute these by hand, but running simulations is much more insightful.  Please complete the following tasks.
+Using a seed of 10198 and the function geornd, generate a  vector of  variables r.  Note that the output of geornd counts the number of failures before the first success, whereas our desired variable counts the number of trials required for that first success.  Do you see how to convert from one to the other?
+Create a logical vector I such that I(i) is logical one if I won on night i (i.e. first red appeared within first five spins), and logical zero otherwise.
+Create a vector W such that W(i) is my net winnings on night i (not my cumulative winnings over the first i nights, just my net winnings on that specific night).
+Estimate the probability , storing the result in a variable named p_hat.  Note that  denotes the probability that we win money on any given night.  Does the value of  suggest this might be an effective strategy?
+Estimate  and , storing the results in variables named mu_hat and sig_hat, respectively.  Does your estimate of  confirm that this might be an effective strategy?
+Execute the command plot(cumsum(W)) to investigate the fluctuations in my wealth over time.  Does the martingale look like an effective strategy?  Are there any big red flags that jump out at you?
+Determine the minimum sample size required to estimate  to within with  confidence, and store your answer in a variable named n_min.  Use round to round your answer off to the nearest integer.
+
+% part 1
+rng(10198);
+r=geornd(18/38,1,100);
+r=r+1;
+
+
+%part 2
+for i= 1:100
+    I(i) = r(i) <6;
+end
+
+
+%part 3
+
+W= ones(1,100)
+W = W.*I
+for i=1:100
+    if W(i) == 0;
+        W(i) = -31;
+    end
+end
+W
+%part 4
+p_hat = sum(I)/100
+
+
+
+%part 5
+mu_hat = mean(W)
+sig_hat = var(W)
+sig_hat = sqrt(sig_hat)
+
+% part 6
+plot(cumsum(W))
+
+%part 7
+zed = norminv(0.005)
+n_min = ((zed *sig_hat)/(0.01))^2
+
+q3
+
+Preamble
+In this problem we will obtain final and accurate estimates of the expected winnings from the martingale strategy.
+Exercises
+Please complete the following tasks.
+Using your minimum sample size from the previous question (and the same seed), obtain a final estimate of .
+Construct a 99% confidence interval for .  Please store the lower limit in a variable named ci_low and the upper limit in a variable named ci_up.
+Execute the command plot(cumsum(W(1:500)) to get a better sense of how the martingale strategy performs over time.  Then complete Q1.2 from Assignment 6 in Gradescope.
+
+
+% part 1 
+n = 1345100
+rng(10198);
+r=geornd(18/38,1,n);
+r=r+1;
+
+
+
+for i= 1:n
+    I(i) = r(i) <6;
+end
+
+
+
+
+W= ones(1,n);
+W = W.*I;
+for i=1:n
+    if W(i) == 0;
+        W(i) = -31;
+    end
+end
+W;
+
+
+mu_hat = mean(W)
+sig_hat = var(W)
+sig_hat = sqrt(sig_hat)
+zed = norminv(0.005)
+
+%part 2
+ci_hi =(mu_hat - ((zed *sig_hat)/sqrt(n)))
+
+ci_lo =(mu_hat + ((zed *sig_hat)/sqrt(n)))
+
