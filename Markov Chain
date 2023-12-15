@@ -1,0 +1,159 @@
+Discrete MC
+Suppose you want to create a simulation of weather for a video game.  Weather in your game follows a simple 3-state Markov model, with transitions between states occuring from one day to the next.  The three possible states on any given day are sunny, rainy, or cloudy, and the state space of your model is represented by S={1,2,3}, with "sunny"=1, "rainy"=2, and "cloudy"=3. 
+Consider the transition matrix P defined below in Matlab.  Is this a valid transition matrix? Why/why not? Type your answer into Gradescope.
+Below where P is defined, type P(1,3)=0.1; 
+If  represents , then  represents . Use Matlab to compute , for m=5, m=10, and m=100.  What happens to the rows in the transition matrix as m gets bigger? What does this mean about the probability for the chain to be in state j for j={1,2,3} in the long run? Type your answer into Gradescope.
+Suppose you wanted to estimate how likely it is in the long run to have 10 days in a row with no rain.  Assuming day 1 begins in the "Sunny" state, simulate n=1000 pathways of weather over the following ten days (i.e. days 2 through 11) and store it into an n-by-11 array called w1. 
+Use the code p1=length(find(all(w1(:,2:11)~=2,2)==1))/n to compute the proportion of pathways with no rain observed in days 2 through 11.  Is p1 a reasonable estimate for how probable it is to observe 10 days of no rain in the long run? Why or why not? Type your answer into Gradescope.
+On a new line, type rng(100) to reset the random number generator.  Repeat the process in steps 4 and 5 using a random vector (i.e. u=rand(1,n)) to assign a random initial state for the chain based on the limiting probabilities found in part 3.  Call the new array w2.
+Define a value p2 representing the same quantity as in part 5 for the new array w2.  Is this a better estimate for the probability we wanted to estimate in part 5? Why or why not? Type your answer into Gradescope.
+
+rng(100)
+
+
+
+P=[0.7 0.2 0.2; 0.2 0.35 0.45; 0.4 0.2 0.4];
+P(1,3)=0.1;
+Q=cumsum(P,2);
+
+
+
+
+% Complete the for loop to generate the values in the array w1
+%Note: w1(i,j) represents the state of the chain for the i'th pathway on the j'th day  
+n=1000;
+
+
+
+for i=1:n
+    x0 = 1;
+    x=zeros(1,10);
+    x = [x0 x];
+    u =rand(1,10);
+    w1(i,:)=x;
+    for j=2:11
+        current_state = w1(i,j-1);
+        w1(i,j) = min(find(Q(current_state,:)>=u(j-1)));
+
+    end
+    
+end
+
+%part 5
+p1=length(find(all(w1(:,2:11)~=2,2)==1))/n
+
+%part 6
+rng(100);
+
+
+
+
+
+
+
+
+% Complete the for loop to generate the values in the array w1
+%Note: w1(i,j) represents the state of the chain for the i'th pathway on the j'th day  
+n=1000;
+
+P1 = [0.5042 0.2353 0.2605];
+P1 = cumsum(P1)
+uer = rand(1,n);
+n=1000;
+
+
+
+for i=1:n
+    x0 = min(find((P1)>=uer(i)))
+    
+    x=zeros(1,10);
+    x = [x0 x];
+    u1 =rand(1,10);
+    w2(i,:)=x;
+    for j=2:11
+        current_state = w2(i,j-1);
+        w2(i,j) = min(find(Q(current_state,:)>=u1(j-1)));
+
+    end
+    
+end
+
+%part 5
+p2=length(find(all(w2(:,2:11)~=2,2)==1))/n;
+
+Cont time MC Two Servers
+
+
+A service desk with two servers is capable of serving two customers at once.  The time between customer arrivals and time taken to serve a customer are distributed by  and   respectively.  Let  represent the number of customers being served at time t.  Assume that if a customer arrives while both servers are busy, they simply leave.
+What is the state space of ? Type your answer into Gradescope.
+Determine the following probabilities (copy and paste the following lines into Gradescope). Write your answers in terms of lambda_a and lambda_s.:  
+                P(chain enters state 1|it leaves state 0)=
+                P(chain enters state 2|it leaves state 0)=
+                P(chain enters state 0|it leaves state 1)=
+                P(chain enters state 2|it leaves state 1)=
+                P(chain enters state 0|it leaves state 2)=
+                P(chain enters state 1|it leaves state 2)=
+         [Hint: Suppose   and , and let .  Then , and ]
+Suppose  and  (hourly rates).  Complete the code below for generating a single instance of the chain over n=20 transitions assuming both servers are unoccupied to begin with.  Use the vector X to store the ith state in X(i), and the vector s to store the sojourn time in state X_i in s(i). For each iteration in the 'for' loop, use the i'th element of the vectors u and v to determine "how long" and "where next" respectively (this is important so that the generated result matches the reference solution - though it is not the most efficient method since some of the generated random numbers will go unused). [Hint: use the properties of exponentials from part 2.]
+Produce a staircase function to visualize the states of the chain X over time.
+Produce a bar plot of the total time the chain spends in each state using bar(x,y) where x is a vector containing the name of each state and y is a vector containing the total time spent in each state.
+Save images your plots to an image or pdf and upload it to Gradescope (note: you may want to use the commented code provided at the bottom of the script in order to display both plots side by side)
+Suppose we want to simulate how many customers are lost any time both servers are busy (think: how can this be done?).  Above the for loop, define a vector c=zeros(1,n-1), and edit the for loop, setting c(i) as the number of customers lost at the i'th transition (note that c(i) can only be non-zero when X(i)=2). [Hint: the function poissonrnd(lambda) generates a random number from the Poisson distribution with rate parameter lambda.]
+What is the average rate of customers being lost over the full duration of the simulation? Define the result in a variable called c_rate.
+
+
+
+lamb_a=  3.7
+lamb_s=  3.1
+n =20
+x0=0
+P=[ 0 1 0; lamb_s / (lamb_a+lamb_s) 0 lamb_a/(lamb_s+lamb_a); 0 1 0]
+Q= cumsum(P,2)
+
+rng(100)
+u=  rand(1,n)
+v=  rand(1,n) 
+
+
+% Store the states in X where X(i) represents the state of X on the i'th transition
+% Store the sojourn times in s where s(i) represents the sojourn time of state X(i) on the i'th transition
+% Note: Assume we don't care about the sojourn time in the final state X(end) (let s have one less element than X). 
+X = zeros(1,n);
+s = zeros(1,n-1);
+c= zeros(1,n-1);
+
+for i=2:n
+    if X(i-1)==0
+        s(i-1) = -(1/lamb_a)*log(1-u(i));
+        X(i) = 1;
+    elseif X(i-1) ==1
+        s(i-1) = -(1/(lamb_s+lamb_a))*log(1-u(i));
+        p=P(2,:);
+        X(i) = min(find((cumsum(p))>=v(i)))-1;
+    else 
+        s(i-1)=-(0.5*lamb_s)*log(1-u(i));
+        X(i) = 1;
+        c(i-1) = poissrnd(lamb_a*s(i-1));
+    end
+end
+c_rate = sum(c) / sum(s)
+        
+
+
+
+
+
+
+
+%{
+figure
+hold on
+subplot(1,2,1)
+Plot 1   % replace 'Plot 1' with the plotting function
+title('Plot 1')
+
+subplot(1,2,2)
+Plot 2   % replace 'Plot 2' with the plotting function
+title('Plot 2')
+hold off
+%}
