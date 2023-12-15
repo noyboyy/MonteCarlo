@@ -1,0 +1,162 @@
+Preamble
+Suppose that  is a (simple, symmetric) random walk.  That is,  and , where the  are i.i.d. random variables, each of which takes on the values  or  with equal probability.  For concreteness, assume that  represents my net winnings after  rounds at the idealized casino (playing the idealized roulette game) that was discussed in lecture.
+Exercises
+Please complete the following tasks.
+Use a seed of 1844 to generate 20 random numbers and store them in the  vector u.
+Use u to determine the outcomes of the individual bets, storing the results in the  vector z.
+Use z to determine my net winnings after each round, storing the result in the  vector x.  Please don't store the initial value  in x.(i.e. only store the values .
+Execute plot([0:1:n],[0 x],'b',[0 n],zeros(1,2),'k')  to visualize the walk.
+What fraction of bets did I win?  Please store your answer in a variable named p_win.
+What fraction of time did the walk lie (strictly) above the horizontal axis?  Please store your answer in a variable named p_above.
+How many times did the walk return to the origina?  On average, how much time elapsed between consecutive returns?  Please store your answers in variables named n_returns and mean_return_time, respectively.
+
+
+rng(1844);
+u = rand(1,30);
+z=2*(u<=0.5)-1;
+%part3
+x = cumsum(z)
+%part 4
+oner =  (find(z==1));
+p_win = length(oner)/30;
+%part 5
+p_above=mean(x>0);
+
+%part 6
+returned=0, xer=0, n=0;
+while returned==0;
+    n=n+1;
+    xer=xer+2*(rand<=0.5)-1;
+    if xer==0
+        returned=1;
+    end
+end
+n_returns = n
+return_indices = find(diff(x == 0) == 1)
+mean_return_time = 3
+
+q2
+Preamble
+Suppose that is a random walk.  In this problem we will investigate the probability distribution of , in particular how it varies with .
+Exercises
+Generate 1000 separate walks, each taking 100 steps, by completing the following tasks.  The end result will be a  matrix x, such that each row of x corresponds to a different walk.
+Use a seed of 52 to generate a  matrix of random numbers, storing the result in a matrix u.
+Construct a  matrix z, such that each component of z is equally likely to be  or .
+Use cumsum to transform z into the desired matrix x.  Note that for matrix inputs, cumsum can either operate along rows or columns (see the help documentation for more details).
+We will now use x to investigate the probability distribution of , and how it varies with .
+Estimate , storing the result in a variable named p20.  Note that your simulated  values lie in the  column of x.
+Estimate , storing the result in a variable named p100.
+Estimate , storing the result in a variable named q20.
+Estimate , storing the result in a variable named q100.
+Execute the code below to visualize and compare the probability distributions of  and .
+histogram(x(:,20),'Normalization','probability','BinEdges',2*[0:20]-20)
+hold on
+histogram(x(:,100),'Normalization','probability','BinEdges',2*[0:100]-100)
+legend('20 Steps','100 Steps')
+xlim([-40 40])
+
+rng(52)
+u = rand(1000,100);
+z=2*(u<=0.5)-1;
+%part3
+x = cumsum(z,2);
+%part 4
+p20_holder = abs(x(:,20))
+p20 = sum(p20_holder <=6)/1000
+p100_holder = abs(x(:,100))
+p100 = sum(p100_holder <=6)/1000
+q20_holder = abs(x(:,20))
+q20 = sum(q20_holder >=10)/1000
+q100_holder = abs(x(:,100))
+q100 = sum(q100_holder >=10)/1000
+
+q3
+Preamble
+In lecture we introduced the Brownian motion process  as the limit of accelerated and scaled random walks.  In this problem we will generate the values of a Brownian trajectory at the unevenly spaced times , ,  and .  To this end, recall that the increment  is , and that increments over disjoint time intervals are statistically independent.
+Exercises
+Please complete the following tasks.
+Use randn with a seed of 5335 to generate the increments  for , and store them in a  vector z.
+Store the values of  in the $1 \times 4$ vect
+
+
+rng(5335);
+holder = [0.5 0.75 1.2 1.9];
+dt = diff([0 holder]);
+
+z=sqrt(dt).*randn(1,4);
+
+
+% part 2
+w = cumsum(z)
+
+q4
+Preamble
+In this problem we will visualize the (highly irregular) trajectory of a Brownian motion, using a very small time-step.
+Exercises
+Simulate the trajectory over the time interval  using a time-step of , by completing the following tasks.
+Let  for .  Use : to store  in a variable named t.
+Use randn and a seed of 328 to generate the increments  for , storing them in the  vector z.
+Use z to determine the values of , storing them in the  vector w.
+Execute plot([0 t],[0 w]) to visualize the trajectory.
+
+% part 1
+dt=0.0001;
+t=[dt:dt:2];
+
+
+% part 2
+rng(328)
+z= sqrt(dt).*randn(1,20000);
+
+% part 3
+mu = 0.0725; % mean return of 7.25%
+x0 = 1; % initial value
+x = zeros(1, 1825);
+x(1) = x0;
+
+for i = 1:1825
+    x(i + 1) = x(i) * exp((mu - 0.5 * 0.1618^2) * dt + 0.1618 * y(i));
+end
+
+
+
+q5
+Preamble
+Consider the stochastic differential equation .  This is an instance of geometric Brownian motion, which essentially models exponential growth subject to noise.  For concreteness, interpret  as the dollar value of a stock index  years from now, assuming the annual return on the index is log-normally distributed with a mean of  (approximately 7.25%) and a volatility (standard deviation) of (approximately 16.18%).
+In this problem we will simulate the value of the index over a five-year period (i.e. over the time interval ), using a daily time step of .
+Exercises
+Please complete the following exercises
+Let  for .  Use : to store  in the  vector t.
+Using a seed of 14, generate the increments  for  and store them in the  vector w_inc.
+Using an initial value , compute  and store the results in the  vector x.  
+Execute plot(t,x,'k',t,exp(.07*t),'r--') compare (i) the  trajectory to (ii) exponential growth at 7% (compounded continuously).  Does "exponential growth with noise" seem to be a reasonable description of this process?
+
+% part 1
+dt=1/365;
+t=[0:dt:5];
+
+
+
+
+% part 2
+rng(14);
+y= sqrt(dt).*randn(1,1825);
+cummer = [1 cumsum(y)];
+cummer = cummer +1
+% part 3
+x0 = 1;  % initial value
+x = zeros(1, 1826);
+x(1) = x0;
+mu = 0.07;  % mean
+sigma = 0.15;  % volatility
+for i = 1:1825
+    drift = mu * x(i) * dt;
+    diffusion = y(i) * sigma* x(i);
+    x(i + 1) = x(i) + drift+ diffusion;
+end
+
+
+plot(t,x,'k',t,exp(.07*t),'r--')
+
+
+
