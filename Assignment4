@@ -1,0 +1,153 @@
+q1
+Preamble
+We say that the random variable  follows a Weibull distribution with shape parameter , and write , if it has a pdf of the form
+
+for some constant .  In this problem we will use inverse transform to generate hypothetical observations from the Weibull distribution.
+Exercises
+Use inverse transform with a seed of 44 to generate a single observation from the  distribution.  You will need to generate a random number and then transform it appropriately.  Please store the random number in a variable named u, and the Weibull variable in variable named x.
+Use inverse transform with a seed of 78 to generate 1000 observations from the  distribution.  You will need to begin with a vector of random numbers, and transform them appropriately.  Please store the random numbers in a row vector uu and the Weibull variables in a row vector named xx.
+
+% part a
+rng(44)
+u = rand(1,1)
+k = 0.8
+x = (-log(1-u))^(1/k)
+
+% part b
+rng(78)
+uu = rand(1,1000)
+k = 1.6
+for i =1:1000
+    xx(i)=(-log(1-uu(i)))^(1/k)
+end
+
+
+q2
+Preamble
+We say that the random variable  follows a (standard, symmetric) Laplace distribution if it has a pdf of the form
+
+Although it is entirely possible to simulate a Laplace variable  directly using inverse transform, it is simpler to use the following stochastic representation: if  and  are independent  variables and , then  follows a Laplace distribution.
+Exercises
+Using seeds of 44 and 78, respectively, generate two  vectors of random numbers.  Please store the results in variables named u and v, respectively.
+Use inverse transform to transform u into a vector of  variables, storing the result in a variable named z1.
+Use inverse transform to transform v into a vector of  variables, storing the result in a variable named z2.
+Use z1 and z2 to construct a vector of standard Laplace variables, storing the result in a variable named x.
+
+
+% part 1
+rng(44)
+u = rand(1,1000)
+rng(78)
+v= rand(1,1000)
+
+% part 2
+z1 = -1*log(1-u)
+
+% part 3
+z2 = -1*log(1-v)
+
+% part 4
+x = z1-z2
+
+q3
+Preamble
+In this problem and the next, we will use rejection sampling to generate data from the standard normal distribution.  This means that our target density is
+
+We are going to use the Laplace density
+
+as our proposal, with a rejection constant of .  We are going to work in reverse, in the following sense.  In this problem we assume that we have already generated our proposals , and write code that determines which proposals should be accepted.  In the subsequent problem we will write code to generate proposals.
+Exercises
+The first (uneditable) line of your script will read in a  matrix P.  Each row of P contains a distinct proposal .  I generated these proposals myself, and I will walk you through my process in the next problem.
+Store the first column of P in a variable named xp, and the second column in a variable named yp.
+Execute the command scatter(xp,yp) to visualize the proposals.
+Evaluate the standard normal density at each point in xp, storing the results in a variable named f.  That is, create a column vector f such that f(i) is equal to the standard normal density, evaluated at x(i).
+Create a logical vector v such that v(i) is equal to (logical) one if xp(i) should be accepted, and v(i) is equal to (logical) zero otherwise.
+Store the accepted values of xp in a vector x.  You will need to use find here.
+What fraction of points were accepted?  How does this compare to the theoretical fraction that you would have expected?  Please store the results in variables named c_actual and c_theoretical.
+
+P=load('proposal_points.txt');
+
+
+
+%part 2
+
+xp = P(:, 1);
+yp = P(:,2);
+
+%part 3
+scatter(xp,yp);
+
+% part 4
+f = (1/(sqrt(2*pi)))*exp((-xp.^2)/2);
+
+%creating the rejection stuff
+c= 1.32
+g= @(x)1/2*exp(-x);
+h =@(x)c* g(x);
+
+%part 5
+n =1000;
+hp = h(xp);
+checker = yp.*P;
+v = (yp<=f);
+
+% part 6
+xfind = find(v);
+x = xp(xfind);
+
+% part 6 
+c_theoretical = 1/c
+c_actual = length(x) / 1000
+
+
+q4Preamble
+This problem is a continuation of the previous problem.  Now that we understand how to check whether or not a given proposal should be accepted, it is time to learn how to generate the proposals.  Before proceeding, we define the function , where the value of the rejection constant  and expression for the target density  are given in the previous problem.
+I have attached a function called laprnd to this problem, and you can call it from your script.  It accepts an integer n as input, and returns a vector of n Laplace variables as output.  Having completed the "Sampling from the Laplace" problem, you have an understanding of how the function works.
+Exercises
+Use a seed of 44 and the function laprnd to generate  realizations of , storing the result in a variable named xp.
+Evaluate the function  at each point in xp, and store the results in a variable named h.  That is, create a row vector h such that h(i) is equal to the function , evaluated at xp(i).
+Use a seed of 78 to generate 1000 random numbers and store them in a vector v.  Now use the components of v to create a vector yp such that yp(i) is uniformly distributed on the inverval [0,h(i)].
+
+% part 1
+rng(44);
+xp = laprnd(1000);
+
+% part 2
+h = ones(1,1000);
+c= 1.32;
+g= @(x)1/2*exp(-abs(x));
+hp =@(x)c* g(x);
+h = hp(xp);
+
+
+% part 3
+rng(78);
+v= rand(1,1000);
+yp = v.*h;
+
+
+q5
+Preamble
+In this problem we are going to write a function that uses rejection sampling to generate data from the gamma density
+
+We will use the exponential density
+
+as our proposal, with a rejection constant of .  Our function will take the desired number of proposals as input, and return the accepted proposals as output (more precisely, it will return the x-coodinates of the accepted proposals).  Note that because we cannot control the number of proposals that are accepted, the size of the output will be random (i.e. beyond our control).
+Exercises
+Please write a function named my_gamrnd that accepts a desired number of proposals  as input, and returns a vector of accepted proposals as output.
+You will need to generate  random numbers,  of which are used to generate the values of  and  of which are used to generate the values of . Please ensure that the first  random numbers that you generate are used for , and the remaining  are used for .
+We don't need the values of , so please ensure that the output only consists of the  values from the accepted proposals.
+
+function output = my_gamrnd(n)
+    c = 2.5
+    uu = rand(1,n);
+    xp = -2*log(1-uu);
+    h = c*(1/2)*exp(-xp/2);
+    multy = rand(1,n);
+    yp = h.*multy;
+    
+    f = (8/3)*(xp.^3).*exp(-2*xp);
+    truth = yp<=f;
+    output = xp(find(truth));
+end
+
