@@ -1,0 +1,193 @@
+Preamble
+In this problem we will make sure we understand how to generate individual transitions of a Markov chain, using Matlab.  In Q1(a)-Q1(d) of the assignment you generated the first 4 transitions of the chain by hand.  Here we will do same using the min(find()) approach in Matlab.
+Exercises
+Please complete the following tasks.
+Store the transition matrix in a variable named P.  Note that each row of P corresponds to a probability distribution on .
+Store the cumulative probabilities in a variable named Q.  Note that the  row of Q should contain the cumulative probabilities corresponding to the probability distribution contained in the  row of P.
+Store the initial state in a variable named x0.
+Use the random number u1=0.37 and min(find()) to generate the first transition, storing the value of  in a variable named x1.
+Use the random number u2=0.32 and min(find()) to generate the first transition, storing the value of  in a variable named x2.
+Use the random number u3=0.90 and min(find()) to generate the first transition, storing the value of  in a variable named x3.
+Use the random number u1=0.47 and min(find()) to generate the first transition, storing the value of  in a variable named x4.
+
+
+P= [ 0.3 0.5 0.2; 0.1 0.4 0.6; 0.4 0.2 0.4]
+Q = [0.3 0.8 1; 0.1 0.3 1; 0.4 0.6 1]
+x0 = 3
+% part4
+U= 0.37
+x1= min(find(U<=Q(3,:)))
+%part5
+
+U1= 0.32
+x2= min(find(U1<=Q(1,:)))
+%part6
+U= 0.9
+x3= min(find(U<=Q(2,:)))
+%part7
+U= 0.47
+x4= min(find(U<=Q(3,:)))
+
+q2
+
+Preamble
+In this problem we will set up a Markov chain that tracks our random web surfer as he moves through the internet.  To this end let  denote the site that our surfer visits for .  Then  is a Markov chain.
+Exercises
+Suppose that our surfer is currently sitting at site 1, i.e. that .  Generate the next 25,000 sites that he visits, by completing the following tasks.
+Determine the first row of the transition matrix and store it in a row vector named P1.  Repeat for rows 2 through 4 (i.e. store second row in row vector P2, etc.).
+Store the transition matrix in a variable named P.
+Use a seed of 78 to generate 25,000 random numbers and store them in a variable named u.
+Use the elements of u to generate the first 25,000 sites that our surfer visits (i.e. ).  Please store  in a row vector named x.
+Estimate the (long run) proportion of time our surfer spends at each website.  That is, construct a  vector f such that f(i) is equal to the proportion time our surfer spent at website i.
+Once you have completed these exercises, please execute the following code to help support your discussion in Gradescope.
+bar(f)
+xlabel('Site')
+ylabel('Frequency')
+
+
+P1 = [0 1 0 0];
+P2 = [0.5 0 0 0.5];
+P3= [0.5 0 0 0.5];
+P4 = [1/3 1/3 1/3 0];
+%part 2
+P = [P1; P2; P3; P4];
+Q = cumsum(P,2)
+n = 25000
+%part3
+rng(78);
+u = rand(1,25000);
+x = zeros(1,25000);
+x0 = 1
+x = [x0 x];
+%part 3
+for i = 1:25000
+    current_state = x(i);
+    x(i+1) = min(find(Q(current_state,:)>=u(i)));
+end
+
+f = zeros(1,4)
+for i=1:4
+    f(i) = sum(x==i)/n
+end
+
+q3
+
+Preamble
+Consider a Markov chain with state space , rates  and transition matrix
+
+In this problem we will generate the first 10 transitions for this chain, keeping track of both states visited and the duration of each sojourn.
+Exercises
+Please complete the following.
+Initialize the number of transitions (n=10) and the initial state (x0=3).
+Initialize the state vector (x=[x0 zeros(1,n)]) and the sojourn vector (s=zeros(1,n)).
+Store the rates in a row vector lambda and the transition probabilities in a matrix P.
+Use a seed of 78 to generate 10 random numbers and store them in a row vector u.
+Use a seed of 44 to generate an additional 10 random numbers and store them in a row vector v.
+Generate the first 10 transitions for the chain.  Use the elements of u to generate the transitions and the elements of v to generate the sojourn times.  Store the sequence of states in x and the sequence of sojourn times in s.
+Once you have completed these tasks, please execute the following code to visualize your output
+t=[0 cumsum(s)];
+stairs(t,x)
+xlabel('Time')
+ylabel('State')
+ylim([0.8 3.2])
+
+
+n=10;
+x0 =3;
+
+s = zeros(1,n);
+lambda =[2 3 2];
+P=[0 1 0; 2/3 0 1/3; 0 1 0];
+Q=cumsum(P,2)
+
+%part 4
+rng(78);
+u = rand(1,10)
+%part5
+rng(44);
+v = rand(1,10);
+%part 6
+s= zeros(1,n);
+x=zeros(1,n);
+x=[x0 x]
+for i=1:10
+    current_state = x(i);
+    lambda_move = lambda(current_state);
+    P_temp = Q(current_state,:);
+    current_soj = -(1/lambda_move)*log(1-v(i))
+    next_state = min(find(P_temp>=v(i)));
+    x(i + 1) = find(Q(x(i), :) > u(i), 1)
+    s(i) = current_soj
+    
+end
+
+
+q4
+Preamble
+Consider the Markov chain from the previous problem.  In this problem we will determine the long-run proportion of time that the chain spends in each state.
+Exercises
+Please copy/paste your code from the previous problem, and change the number of transitions from n=10 to n=20000.  Then make the following additions outside (and after) the loop.
+Determine which sojourns took place in state 1, and store the results in a variable named I1.
+Create a vector s1 that contians the duration of each visit to (i.e. sojourn in) state 1.
+Determine the duration of the third visit to state 1, storing the result in a variable named s1_3.
+Determine the durations of (i) the shortest visit to state 1 and (ii) the longest visit to state 1, storing the results in variables named s1_min and s1_max.
+Determine the average duration of visits to state 1, storing the result in a variable named s1_avg.
+Determine the total amount of time spent in state 1, storing the result in a variable named s1_total.
+Determine the proportion of time spent in each state, storing the results in a row vector named f.  Note that f(i) should be equal to the proportion of time sp
+
+n=20000;
+x0 =3;
+
+s = zeros(1,n);
+lambda =[2 3 2];
+P=[0 1 0; 2/3 0 1/3; 0 1 0];
+Q=cumsum(P,2)
+
+%part 4
+rng(78);
+u = rand(1,n);
+%part5
+rng(44);
+v = rand(1,n);
+%part 6
+s= zeros(1,n);
+x=zeros(1,n);
+x=[x0 x];
+for i=1:n
+    current_state = x(i);
+    lambda_move = lambda(current_state);
+    P_temp = Q(current_state,:);
+    current_soj = -(1/lambda_move)*log(1-v(i));
+    next_state = min(find(P_temp>=v(i)));
+    x(i + 1) = find(Q(x(i), :) > u(i), 1);
+    s(i) = current_soj;
+    
+end
+
+I1 = find(x(1:n)==1);
+I2 = find(x(1:n)==2);
+I3 = find(x(1:n)==3);
+%part 2
+s1 = s(I1);
+s2 = s(I2);
+s3 = s(I3);
+%part 3
+s1_3 = s1(3)
+
+%part4
+s1_min = min(s1)
+s1_max= max(s1)
+
+%part 5
+s1_avg = mean(s1)
+
+%part 6
+s1_total = sum(s1)
+
+%part 7 
+s1_user = sum(s1)/sum(s)
+s2_user = sum(s2)/sum(s)
+s3_user = sum(s3)/sum(s)
+f = [s1_user s2_user s3_user]
+
+
