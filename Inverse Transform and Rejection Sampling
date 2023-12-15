@@ -1,0 +1,197 @@
+Method of Inversion
+
+On this lab, we will use the rng function in matlab to control the seed and generator.
+Type n=10.
+Type u1=rand(n,1) to generate a column vector sample of  uniform(0,1) random variables. 
+On the next line type in rng(10, 'twister'). This sets the generator seed to 10, and algorithm to the Mersenne twister algorithm.
+Generate another sample of n uniform(0,1) random variables.  Call this u2
+Run your code and note down the first 3 elements of u1 and u2. Notice that they are different (why?).
+Run your code a second time and note down the first 3 of u1 and u2.  Notice that the values for u1 are different on subsequent runs, whereas the values for u2 are the same (why?)
+Assessment  [5 marks]
+Here we generate a random variable X having probability mass function
+
+Additionally we use the rng function in matlab to control the seed and generator.
+Create a row vector called p that stores the probabilities for each value the random variable can take on (in order). I.e. , etc.
+Set n=1000.
+Set a seed of 10 and the `combRecursive' generator
+Generate a column vector sample of n=1000 uniform(0,1) random variables.  Call this u1
+Set a seed of 10 and the `twister' generator 
+Generate a second column vector sample of n uniform(0,1) random variables.  Call this u2
+What values are the 657-660th elements of u1 and u2? (Type your answer in Gradescope)
+Since the same seed of 10 is used to generate u1 and u2, why are the 657-660th elements of u1 and u2 different? (Type your answer in Gradescope)
+Using u1 and u2 and logical indexing (as introduced on Lab 0), generate two n-by-1 samples of RV X. Call them x1 and x2, respectively.  [Hint: You may want to initially define x1 and x2 first as n-by-1 arrays using the zeros(n,1) or ones(n,1) function]
+Using x2, estimate the probability function and put this in row vector called pEst with the 5 elements corresponding to j=5,6,7,8,9 [Hint: use the length() f
+
+
+%INTRODUCTION
+n=10;
+u1=rand(n,1);
+rng(10,'twister')
+u2=rand(n,1);
+
+%ASSESSMENT
+p = ([0.1 0.35 0.1 0.35 0.1])
+n =1000
+rng(10, 'combRecursive')
+u1 = rand(n,1);
+rng(10, 'twister')
+u2 = rand(n,1);
+%u1(657:660)
+%u2(657:660)
+
+% define ur arrays
+x1 = zeros(n,1);
+x2 = zeros(n,1);
+for i = 1:1000
+    x1(i) = min(find(u1(i)<= cumsum(p)))+4;
+end
+
+for i = 1:1000
+    x2(i) = min(find(u2(i)<= cumsum(p)))+4;
+end
+
+
+% part 10
+pEst = zeros(1,5)
+for i = 1:1000
+    holder1(i) = (x2(i) == 5);
+end
+for i = 1:1000
+    holder2(i) = (x2(i) == 6);
+end
+for i = 1:1000
+    holder3(i) = (x2(i) == 7);
+end
+for i = 1:1000
+    holder4(i) = (x2(i) == 8);
+end
+for i = 1:1000
+    holder5(i) = (x2(i) == 9);
+end
+
+t5=sum(holder5)/1000
+t4=sum(holder4)/1000
+t3=sum(holder3)/1000
+t2=sum(holder2)/1000
+t1= sum(holder1)/1000
+pEst = [t1 t2 t3 t4 t5]
+
+
+
+
+
+
+
+
+
+Method of Acceptance and Rejection Cont RV
+
+n this problem, we will generate random pathways for savings after investment.  Suppose you invest $1000/year for the next 25 years, and stay invested in (well-diversified) stocks the entire time.  Suppose the interest on your investment follows the model
+,
+where X is a random variable with p.d.f.
+
+
+We will use the method of acceptance-rejection to generate the R.V. X, using the proposal
+.
+
+Your total wealth after  years follows a recursive model:
+.
+
+Additionally we use the rng function in matlab to control the seed and generator.
+
+Complete the following steps:
+Find the smallest value of  such that  for .  Call this c. [Note: you may do your work on a separate sheet of paper. You do not need to submit your work.]
+Based on your c value, what percentage of generated candidate values do you expect will be accepted? Explain your reasoning. (Type your answer in Gradescope)
+Uncomment the lines of code in the "Part 2: Plots" section by deleting the %{ and %} (code enclosed within these indicators is a multiline comment).  As a visual exercise, think about which sample points on the plot will be accepted or rejected.
+Uncomment the code in the "Part 3: Plots" section. Set n=1000.  This is the number of sample pathways we will generate for wealth.
+Type x=zeros(n,25).  We will use this to store the accepted values for the RV X.
+Fill in the "for loop" in lines 26-32 to generate 100 sample values, and select the appropriate candidate values to store in the matrix x. Complete the next few steps (7 through 10) within the for loop.
+Generate a 1-by-100 sample of RVs distributed according to the proposal function . Call this yp.
+Generate a 1-by-100 sample of candidate values from the uniform(0,1) distribution.  Call this xp.
+Select the appropriate candidate values from xp, and store the accepted values in a new vector (you can call this anything... e.g. "xacc"). 
+Store the first 25 accepted values from xp in the i'th row of the matrix x. (End of for loop)
+Why do we generate 100 candidate values in for each of n pathways in part 8 if we only want 25 values of X for n pathways? (Type your anser in Gradescope)
+Uncomment the code in the "Part 4: Generate pathways for interest rate and wealth" section.  Store the interest rate in a variable called r, defined in terms of the matrix x.
+We will define the wealth over time in an nx25 matrix called w.  Initialize w as w=zeros(n,25);, and (on a separate line) set the initial amount for each pathway to $1000: w(:,1)=1000. 
+Fill in the for loop to calculate the wealth from your savings and investment from years 1-25.
+In the "Part 5: pathway average" section, compute the pathway mean by averaging across all rows of w.  To do this, type wavg=mean(w,1). [Note: The '1' in the mean() function indicates the dimension we are averaging across.  If we wanted to take the column-average of w, we would type mean(w,2)].
+Determine the difference between expected wealth in year 25 using this model, vs. wealth in year 25 if $1000/year were put aside, but not invested.
+Time permitted, uncomment the code under "Part 6: plot wealth" section to view a plot of your results.
+
+
+rng('default') % This sets the generator to the Mersenne Twister with a default seed of 0
+
+% Part 1: define c
+c=315/128
+
+% Part 2: Plots
+% Uncomment the code below to view a plot of a sample of 100 candidate values against the functions f and g.
+% Think about which sample points will be accepted or rejected.
+
+%{
+xx=0:0.01:1;
+yy=630*(xx).^4.*(1-xx).^4;
+hold on
+plot(rand(1,100),c*rand(1:100),'.')
+plot(xx,yy,'-')
+plot(xx,c*xx,'-')
+hold off
+%}
+
+
+% Part 3: Acceptance-Rejection to generate X
+rng('default')
+n=1000;
+x = zeros(n,25);
+
+for i=1:n
+    yp = c*rand(1,100);
+    xp= rand(1,100);
+    xeval = find(yp<(630*(xp).^4.*(1-xp).^4));
+    xacc = xp(xeval);
+    x(i,:)=xacc(1:25);
+end
+
+
+
+% Part 4: Generate pathways for interest rate and wealth
+
+r=-0.25 + 0.2.*x;
+w=zeros(n,25);
+w(:,1)=1000;
+
+for i=1:24
+   w(:,i+1)=1000 + exp(r(:,i)).*w(:,i);
+end
+
+
+% Part 5: pathway average
+wavg = mean(w,1)
+diff = wavg(25)-25000
+
+
+% Part 6: plot wealth
+% Uncomment this code to plot expected wealth
+
+%{
+figure;
+subplot(1,2,1)
+hold on;
+for i=1:10
+    plot(1:25,w(i,:))
+end
+hold off;
+xlabel('years'); ylabel('wealth ($)');
+title('First 10 pathways of w')
+subplot(1,2,2)
+hold on;
+plot(1:25,wavg)
+plot(1:25,1000*(1:25))
+hold off
+xlabel('years'); ylabel('wealth ($)');
+legend('wavg','no investment')
+%}
+
+
+
+
