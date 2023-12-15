@@ -1,0 +1,189 @@
+Poisson process w filtration
+Suppose that credit card transactions on an online store can be modelled by a Poisson process.  The total number of credit card transaction X that will occur after t minutes is:
+.
+We here will simulate 1000 outcomes for the number of credit card transaction that occur after 1 hour. 
+Additionally we use the rng function in matlab to control the seed and generator.  
+Complete the PART 1 code in lines 2-18.
+Type rng('default').  This sets the generator to the Mersenne Twister with a default seed of 0.
+Set n to be the number of simulated outcomes.
+Set a value for lambda, the average number of credit card transactions in a single unit of time.  (Use minutes as your base time unit)
+Set tmax to be the max time in our time interval, in minutes.
+Create a 1-by-n vector for storing the outcomes for our Poisson random variable.  Call it x.
+Complete the for loop from 1 to n simulating the number of transactions. Set at the start of the for loop, set S=0 and m=0.  S will be used to store the time t after each transaction up until 60 minutes, and m will count the number of transactions during that time.
+In line 11, start a while loop: while S<tmax.
+At the start of the while loop, generate an exp(lambda) random variable using the 'rand' function. Call this T.
+Set S=S+T. 
+Add 1 to m: m=m+1 
+Type end to end the while loop.
+Type m=m-1.  [Think: why do we need to subtract 1 from m after the while loop has ended?]
+Store m in the i'th element of x.
+Type end to end the for loop.
+Using Matlab, draw a histogram of the array x by typing histogram(x).  In Gradescope, explain whether the histogram you obtained is reasonable, making reference to the expected value of the distribution based on the parameter .
+Part 2: Poisson Process with Filtration
+Suppose now that for each credit card transaction, a machine learning algorithm classifies each transaction as either suspicious or credible.  Let the probability that a transaction is flagged as suspicious be 0.1.
+If  and  are the number of credible and suspicious transaction respectively, we say the random variables  and  are thinned versions of the Poisson process .  Note that .
+Additionally we use the rng function in matlab to control the seed and generator.
+Copy the code from lines 2-18 from the PART 1 section (i.e. from rng('default') to the end of the for loop) and paste it into the PART 2 section.  We will add on to this code to generate outcomes for the random variable  in addition to .
+Everywhere where the variable x shows up in the newly-pasted code, modify the variable name from 'x' to 'xx' so as not to overwrite the original 'x' variable.  There should be two instances to modify.
+Below the line defining tmax, define a variable called p as the probability that a transaction is not flagged as suspicious. 
+Below the line defining x, define a second 1-by-n vector called x1.  This will store outcomes for the random variable .
+In the for loop, below m=0, define a second counting variable, m1=0.
+In the while loop, below the line m=m+1, we will create a test for whether each transaction gets flagged as suspicious or credible. Generate a rand(0,1) random variable, and use it to test if the transaction is credible. Define a variable called cred which is 1 if the transaction is credible, and 0 if suspicious. [Hint: You do not need an 'if' statement.]
+Still in the while loop, add 1 to m1 if the transaction is credible (and add nothing if it is suspicious). [Hint: Use the cred variable you defined earlier - you don't need an 'if' statement.]
+Now, after the while loop and within the for loop, below where we store m into xx, subtract 1 from m1 if the most recent transaction was credible, (and subtract nothing if it was suspicious). [Once again, you can do this in one line of code without using an 'if' statement.]
+On the next line, store the m1 variable in the i'th element of x1.
+Why do we need to perform step #8? Input your answer into Gradescope. [Hint: it is related to the question posed in step #12 in the Introduction.]
+Now, outside of the for loop, define the variable x2 as a vector containing n oucomes for the number of suspicious transactions after 1 hour. [Hint: Recall that ] 
+Using x2, create a point estimate for  and call it yavg.
+Construct a 95% confidence interval for the point estimate for yavg. Use the std() function to estimate standard deviation of the binary variable representing . Call the interval CI, (with a capital 'i') and write it in the form: CI=[lower_bound upper_bound]
+How big of a sample size would we need to take so that the width of our 95% confidence interval is no more than 1%?  Store this in a variable called nn
+
+
+% PART 1
+rng('default');
+n = 1000;
+lambda = 2;
+tmax = 60;
+x = zeros(1,n);
+
+
+for i=1:n
+    S=0; m=0;
+    while S<tmax
+        T=-(1/lambda)*log(1-rand);
+        S=S+T;
+        m=m+1;
+    end
+    m=m-1;
+    x(i)=m;
+end
+
+
+% PART 2
+
+rng('default');
+n = 1000;
+lambda = 2;
+tmax = 60;
+p = 0.9
+xx = zeros(1,n);
+x1 = zeros(1,n);
+
+for i=1:n
+    S=0; m=0; m1=0;
+    while S<tmax
+        T=-(1/lambda)*log(1-rand);
+        S=S+T;
+        m=m+1;
+     
+        cred = rand < p;
+        m1 = m1+cred;
+    end
+    m=m-1;
+    xx(i)=m;
+    m1 = m1 - cred;
+    x1(i) = m1;
+end
+
+x2 = xx -x1;
+%part 12
+holder = x2 >15;
+holder = sum(holder);
+yavg = holder /1000;
+
+
+% part 13
+zed = norminv(0.025);
+sig_hat = var(x2)
+sig_hat = sqrt(sig_hat)
+mu  = mean(x2);
+
+ci_hi =yavg - ((zed *std(x2>15)/sqrt(1000)))
+ci_lo =yavg + ((zed *std(x2>15)/sqrt(1000)))
+CI = [ci_lo ci_hi]
+
+
+zed = norminv(0.025);
+nn = (zed*std(x2>15)/(0.01/2))^2
+
+
+
+Beta binomial dist
+
+You are an amateur rock collector, and you want to try going out on your own excursion to find geodes.  After searching in the Hiddenite Gem mines in North Carolina (a popular site for the mining of gemstones), you have found 20 vaguely spherical rocks that you think might be geodes, but you won't know until you break them open.  Before breaking open your rocks, you want to construct a model to estimate how many of the rocks you found are geodes.  You expect that approximately 1 in 4 rocks you have found are geodes. That is, you think you can create a reasonable simulation of your find (geode or not geode) using a probabilistic model where the probability of a given rock being a geode is . Let  represent the number of geodes in your collection using this model.   is therefore a random variable with a binomial distribution:
+, with  .
+We here write a Matlab program that simulates a single realization of X. 
+Additionally we use the rng function in matlab to control the seed and generator.  
+Complete the code in the INTRODUCTION section in lines 2-6.
+Type rng('default').  This sets the generator to the Mersenne Twister with a default seed of 0.
+Set theta=1/4;
+Generate a a vector of 20 uniform(1,0) random variables: u=rand(1,20);
+Define a variable (call it z) as the indices where u is less than theta: z=find(u<=theta);. This stores the elements of the successful trials, where a "success" means finding a geode.
+Define the variable geodes in terms of z, which gives the total number of geodes found in this simulation.
+Assessment
+You suspect that your earlier model for geodes is somewhat flawed, since there is a natural variation in the likelihood that the rocks in your collection are geodes.  This may be due to factors such as the exact location of your search, how hard you looked, and so on. Due to this uncertainty, you think that the expected number of geodes in your collection may not be exactly 1 in 4 - it could be higher or lower. In order to improve your model, you assume that the probability parameter , which represents the probability that any rock in your collection is a geode, has a Beta probability distribution with an expected value of .  
+The resulting compound distribution for , the number of geodes discovered is then 
+, with , 
+where you assume . [Note that . ]
+This time, instead simulating a single realization of  as we did in the Introduction, we will simulate 10,000 outcomes of the random variable .
+Additionally we use the rng function in matlab to control the seed and generator.
+Type rng('default').  This sets the generator to the Mersenne Twister with a default seed of 0.
+Set n=10000. 
+Set the appropriate values for alpha and beta.
+Set x=zeros(1,n);
+Using a for loop from 1 to n, generate 10000 outcomes from the beta-binomial distribution, and store each outcome into the vector x.  [Hint: use the function betarnd(alpha,beta) to generate a  random variable.]
+Estimate the expected value of , and store it in a variable called xavg.
+Estimate the standard deviation of , and store it in a variable called xstd. 
+Create a 95% confidence interval around xavg, and store it in a variable called CI, in the form CI=[lower_bound upper_bound].
+Estimate the probability that at least half of the rocks you find are geodes.  Call this p.
+Uncomment the code under the 'Plots' section and use it to plot histrograms of a simulated  distribution vs. the simulated beta-binomial distribution x.  What is the key difference between these two distributions? Input your answer
+
+% INTRODUCTION
+rng('default')
+theta=1/4;
+u=rand(1,20);
+z=find(u<=theta);
+geodes=sum(z);
+
+% ASSESSMENT
+rng('default');
+n= 10000;
+alpha = 1
+beta=3
+x = zeros(1,n);
+for i=1:n
+    x(i) = binornd(20,betarnd(alpha,beta));
+end
+xavg = mean(x);
+xstd = std(x);
+%next part
+CI = [xavg - (1.96*xstd)/sqrt(n), xavg + (1.96*xstd)/sqrt(n)]
+p=sum(x>=10)/n;
+
+    
+    
+    
+
+
+
+
+
+
+
+
+% Plots
+
+rng('default')
+xbinom=binornd(20,1/4,1,n);  % 1-by-n binomial random variable, for comparison with beta-binomial
+
+
+figure;
+hold on;
+histogram(xbinom)
+histogram(x)
+hold off;
+title('Binomial vs. beta-binomial distribution')
+legend('binom','beta-binom')
+
+
+
