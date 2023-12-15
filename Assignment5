@@ -1,0 +1,235 @@
+q1
+Preamble
+Consider a homogeneous Poisson process with rate .  Recall that (i) the number of events that occur in an interval of length  time units (i.e. an interval of the form ) follows a Poisson distribution with mean of  and (ii) inter-event times are exponentially distributed with rate .
+Exercises
+Please complete the following, assuming the rate of the process is .
+Use a seed of 19191919, generate 100 random numbers and store them in a  vector u.
+Transform u into a vector of inter-event times t.
+Transform t into a vector of event times s.
+How many events occurred during the first unit of time?  Please store your answer in a variable named n1.
+How many events occurred during the first 10 units of time?  Please store your answer in a variable named n10.
+
+% part 1
+rng(19191919);
+u = rand(1,100);
+
+% part 2
+lambda = 5;
+n = 100
+for i = 1:n
+    t(i) = -(1/lambda)*log(1-u(i))
+end
+
+% part 3 
+s = cumsum(t)
+
+% part 4 
+adder = 0
+n1 = 0
+lambda = 5
+while adder < 1
+    n1 = n1 +1
+    tot = -(1/lambda)*log(1-u(n1))
+    adder = adder + tot
+end 
+n1 = n1-1
+
+% part 5
+adder = 0
+n10 = 0
+lambda = 5
+while adder < 10
+    n10 = n10 +1
+    tot = -(1/lambda)*log(1-u(n10))
+    adder = adder + tot
+end 
+n10 = n10-1
+
+q2
+
+Preamble
+Recall the model for NHL scoring that we discussed in lecture.  Let  denote the number of goals the team scores in a given game, and let  denote the number of goals that the allow during the same game.  Assume that:
+
+
+ and  are independent.
+Now recall that:
+The team wins the game (in regulation) if .
+The team loses the game (in regulation) if .
+The game goes into overtime if .
+In lecture we noted that modelling the outcome of a shootout is not entirely straightforward.  As such, we will make the simplifying assumption that there is no time limit on overtime - the teams continue playing until one team scores, no matter how long that takes (this is how overtime works in playoffs, but not during the regular season).  Under this assumptioin, it can be shown that the probability our team wins a game that has gone into overtime is
+
+If you are interested in learing where this formula comes from, please see me in person.  Otherwise, just go ahead and use it as needed in what follows.
+Exercises
+Here we apply our model to the 2022-23 Toronto Maple Leafs, who scored an average of 3.40 goals per game and allowed an average of 2.71 goals per game.  Specifically, we will simulate the outcome (after regulation) of 10,000 hypothetical games and compute the number of games our model says the Leafs should have won (be it in regulation or in overtime) during the season.
+Use a seed of 44 and the function poissrnd to generate 10,000  variables, storing the result in a variable named gf (row vector, please).  Note that gf(i) represents the number of goals scored by the Leafs (in regulation) during hypothetical game number i.
+Use a seed of 78 and the function poissrnd to generate 10,000  variables and store the result in a variable named ga (row vector, please).  Note that ga(i) represents the number of goals allowed by the Leafs (in regulation) during hypothetical game number i.
+Create a logical vector v1 such that v1(i) is equal to logical one if the Leafs won game i in regulation.
+Create a logical vector v2 such that v2(i) is equal to logical one if game i ended in a tie at the end of regulation, and logical zero otherwise.
+What percentage of games did the Leafs win in regulation?  Please store your answer in a variable named p1.
+What percentage of games ended in a tie after regulation?  Please store your answer in a variable named p2.
+What fraction of games that went into overtime, would you expect the Leafs to win?  Please store your answer in a variable named p3.
+Compute the model-implied probability that the Leafs win (whether in regulation or overtime), and store it in a variable named p_win.
+How many games does our model expect to win, over the course of an 82-game season?  Please use round to round your answer to the nearest integer, and store your answer in a variable named n_win.
+
+% part 1 
+rng(44);
+gf = poissrnd(3.4,[1,10000]);
+
+% part 2 
+
+rng (78);
+ga = poissrnd(2.71,[1,10000]);
+
+% part 3 
+for i = 1:10000
+    v1(i) = gf(i) > ga(i);
+end
+
+%part 4
+for i = 1:10000
+    v2(i) = gf(i) == ga(i);
+end
+
+%part 5 
+summy = sum(v1)
+p1 = summy/10000
+
+%part 6 
+ties = sum(v2)
+p2 = ties / 10000
+
+
+% part 7
+
+p3 = 3.4/(3.4+2.71)
+
+% part 8 
+p_win = p1 + p2*p3
+
+%part 9 
+n_win = ceil(p_win * 82)
+
+
+
+q3
+Preamble
+Consider the probability density function , where
+ is the normal density with mean  and standard deviation .
+ is the normal density with mean  and standard deviation .
+ is the normal density with mean  and standard deviation .
+Recall that we call such a density a mixture (of  and ) and that in order to sample from , it suffices to
+Generate a random variable  such that ,  and .  We call  the mixing variable, and its probability distribution the mixing distribution.
+Given the realized value of the mixing variable, say , generate  from the normal distribution with mean  and standard deviation .
+Exercises
+Your script should contain a template (some parts of which are uneditable) for creating a function named mix_normal, that takes a random number u and a standard normal variable z, as inputs, and returns one realization of x as output.  Please build the function by completing the template.
+
+function x=mix_normal(u,z)
+
+    %Store the probabilities and cumulative probabilities for the mixing variable here
+    p=([0.2 0.5 0.3]);
+    P=cumsum(p)
+    
+    %Use u to get I here
+
+    I=min(find(P>=u));
+
+    %Use z to get x here, exact transformation depending on the value of I
+    
+    if I==1
+        x = -0.1 +0.45*z;
+    elseif I==2
+        x = 0.02 +0.25*z;
+    elseif I==3
+        x= 0.15 + 0.05*z;
+    end
+    
+end
+
+q4
+Preamble
+In this problem you will write a function that takes an integer  and positive numbers ,  as inputs, and returns the sum of  independent  random variables as output.  More precisely, the output of of your function should be as follows:
+if  then output is .
+otherwise output is , where  are i.i.d.  random variables.
+The point of this problem is to simplify the next problem.  If you are unable to complete this problem don't panic, I will embed a working version of this function in the next problem.
+Exercise
+Please construct the indicated function and call it gamsum.  Here is some advice.
+Ensure the inputs are n, alpha, beta in that exact order.
+You will need an if else statement to separately handle the n=0 and n~=0 cases.
+Don't worry about fixing the seed of the random number generator (I will fix the seed in my testing code before I call your function).
+Please use gamrnd to generate the gamma variables.
+Remember that Matlab parametrizes the gamma distribution differently than I do (consult lecture notes).
+
+
+function s=gamsum(n,alpha,beta)
+    iterator = 0
+    s = 0 
+    while iterator< n
+       
+            lambda = gamrnd(alpha,1/beta)
+            s = lambda + s
+            iterator = iterator + 1
+    
+        
+    end
+    
+
+q5
+
+Preamble
+In this problem we are going to compare the probability distributions of (i) the sum of 20 independent  variables and (ii) the sum of  independent variables, where  is Poisson with mean .
+More precisely, suppose that  are i.i.d.  random variables.  Further suppose that  is Poisson with mean .  Let  and define  as follows:
+If  then .
+If  then .
+Then  is the sum of a fixed number of random variables, whereas  is the sum of a random number of random variables.
+For context, think of  as the number of claims made against a particular insurance company on a given day, and think of the  as the dollar value of the individual claims.  Then  would represent thte total dollar value of all claims made against that company on that day.  There are two sources of uncertainty here - both the number of claims () and their severity ().  In general, a variable such as  (i.e. the sum of a Poisson-distributed number of random variables) is said to follow a compound Poisson distribution.
+Exercises
+Please complete the following exercises.
+Using a seed of 44 and a for loop, generate a  vector sf such that sf(i) is the sum of 20 independent  variables (i.e. one realization of ).  Please set the seed outside of the loop, and call my gamsum function (attached to this problem) at each iteration of the loop.
+Use poissrnd (with a seed of 78) to generate a  vector n of  random variables.
+Using a seed of 10 and a for loop, generate a  vector sr such that sr(i) is the sum of n(i) independent  variables (i.e. one realization of ).  Please set the seed outside of the loop, and call my gamsum function (attached to this problem) at each iteration of the loop.
+I am not going to test the output of the next series of exercises, rather I am asking you to complete them to set you up for a Gradescope discussion.
+Use mean([sf sr]) to compute the mean of each variable.
+Use std([sf sr]) to compute the standard deviation of each variable. 
+Following a procedure similar to that from lecture, use histogram to visually compare the (approximate) probability distributions of  and .
+Use corr(n,sr) to compute the correlation between the two variables.
+Use scatter(n,sr) to visualize the relationship between  and .  Note that Matlab Grader will only display one figure at a time, so you might want to save the previous image as a .pdf before you create this image.
+
+% part 1
+rng(44) 
+num = 1000
+
+    
+for i =1:1000
+    sf(i) = gamsum(20,1,0.5)
+end
+sf = sf'
+
+
+%part 2
+
+rng(78) 
+n = poissrnd(20,[1,1000])
+n = n'
+
+
+% part 3
+rng(10)
+for i = 1:1000
+    sr(i) = gamsum(n(i),1,0.5)
+end
+sr = sr'
+
+
+% my function from q4
+function s=gamsum(n,alpha,beta)
+    iterator = 0
+    s = 0 
+    while iterator< n
+       
+            lambda = gamrnd(alpha,1/beta)
+            s = lambda + s
+            iterator = iterator + 1
+    
+        
+    end
+end
