@@ -1,0 +1,275 @@
+Preamble
+In this problem we will fit a multivariate normal distribution to team-level data from the 2023 Major League Baseball (MLB) season.
+Exercises
+The file 'mlb_2023.csv' is attached to this problem.  It contains (i) runs scored per game, (ii) runs allowed per game and (iii) total number of wins, for each of the 30 MLB teams during the 2023 season.
+Use the function csvread to read the data in and store it in a matrix M.  Please tell Matlab to ignore both the first column (team names) and the first row (variable names).  Each row of M will correspond to a different team, and the columns will contain runs scored per game, runs allowed per game and total number of wins (in that order).
+Use scatter(M(:,1),M(:,2)) to visualize the relationship between the first two variables, and convince yourself that it looks reasonably elliptic.  Repeat for the other pairs of variables.
+Use mean to compute the mean of each variable, and store the results in a  vector mu.
+Use std to compute the standard deviation of each variable, and store the results in a  variable sigma.
+Use corr to compute the correlation matrix of the three variables, and store the result in a  matrix R.
+Use the approach discussed in lecture to compute the covariance matrix of the three variables, and store the result in a  matrix Sigma.  Note that the result of this calculation will be slighly different from the output of the cov command.
+Compute the lower triangular Cholesky matrix corresponding to the covariance matrix, and store the result in a  matrix L.
+
+M = csvread('mlb_2023.csv',1,1);
+
+mu= mean(M);
+sigma = std(M)
+R = corr(M)
+S = diag(sigma)
+
+Sigma = S*R*S;
+
+% part 3
+L = chol(Sigma, 'lower');
+
+q2
+Preamble
+In Canada, investment products must be classifed into one of five different risk categories.  Historically, average returns and volatilities for the typical asset within each class are as follows.
+Low risk,  and .
+Medium-low risk,  and .
+Medium risk,  and .
+Medium-high risk,  and .
+High risk,  and .
+Furthermore, historical correlations between representative assets from each class have been as follows.
+
+Suppose that  follows a multivariate normal distribution with means, volatilities and correlations as above.  In this problem we will simulate one hypothetical realization of .
+Exercises
+Please complete the following tasks.
+Store the mean vector of  in a column vector mu.
+Compute the the covariance matrix of and store it in a matrix Sigma.  Note that you will first need to (i) store standard deviations in a vector sigma and (ii) store correlations in a matrix R.
+Compute the lower triangular matrix  such that , and store it in a variable L.
+Use a seed of 44 and the function randn to generate 5 independent standard normal random variables, and store them in a column vector named z.
+Transform z into a vector of  variables x
+
+
+
+mu = [ 0.012; 0.05; 0.065; 0.073; 0.13];
+
+sigma = [0.0003; 0.13; 0.154; 0.228; 0.364];
+
+R = [1 -0.22 -0.16 -0.23 0.07; -0.22 1 0.79 0.59 0.12; -0.16 0.79 1 0.78 0.31; -0.23 0.59 0.78 1 0.06; 0.07 0.12 0.31 0.06 1];
+
+S = diag(sigma);
+Sigma = S*R*S;
+
+% part 3
+L = chol(Sigma, 'lower');
+
+% part 4 
+rng(44);
+z = randn(5,1);
+
+%part 5 
+x  = mu +L*z
+
+q3
+
+Preamble
+In the context of the previous problem, suppose that my portfolio allocation is as follows.
+10% low-risk.
+10% medium-low risk.
+30% medium risk.
+40% medium-high risk.
+10% high risk.
+In this problem we will simulate 25,000 hypothetical sets of returns, and use them to compute the corresponding return on my portfolio.
+Exercises
+Please use a loop to simulate the hypothetical returns.  Please complete the following, prior to executing the loop.
+Store the mean vector mu, covariance matrix Sigma, and Cholesky matrix L.  Feel free to copy/paste code from the previous problem.
+Store the portfolio weights in a column vector w.
+Initialize a column vector rp (e.g. rp=Inf*ones(25000,1) or something like that).
+Set the seed at 78.
+At each iteration of the loop, please complete the following tasks.
+Generate one set of hypothetical asset returns x, as in the previous problem.  Note that x represents the continuously compounded returns.
+Convert the continuously compounded returns x into discrete returns r.
+Use discrete returns to compute the discrete return on my portfolio, and store it in the appropriate location in rp (e.g. if your loop variable is i, store the portfolio return from iteration i in rp(i)).
+Once you have executed the loop, please execute histogram(rp,'Normalization','probability') to inspect y
+
+
+mu = [ 0.012; 0.05; 0.065; 0.073; 0.13];
+
+sigma = [0.0003; 0.13; 0.154; 0.228; 0.364];
+
+R = [1 -0.22 -0.16 -0.23 0.07; -0.22 1 0.79 0.59 0.12; -0.16 0.79 1 0.78 0.31; -0.23 0.59 0.78 1 0.06; 0.07 0.12 0.31 0.06 1];
+
+S = diag(sigma);
+Sigma = S*R*S;
+
+% part 3
+L = chol(Sigma, 'lower');
+
+% part 4 
+rng(44);
+z = randn(5,1);
+
+%part 5 
+x  = mu +L*z;
+
+
+w = [.1; .1; .3 ;.4 ;.1];
+
+% last part
+rp = zeros(25000,1);
+rng(78);
+
+%for i = 1:25000
+ %   z = randn(1,1);
+  %  x  = mu +L*z
+   % holder = (exp(x));
+    %rp(i) = holder;
+%end
+
+
+
+rp = ones(25000,1);
+
+
+
+for i = 1:25000;
+    z = randn(5,1);
+    x=mu+L*z;
+    r_etf = exp(x)-1;
+    
+    rp(i) = sum(w.*r_etf);
+    
+end
+
+q4
+
+Preamble
+In this problem we will explore the use of protective puts as portfolio insurance, as discussed in lecture.  In practice, the cost of a put option is increasing in the riskiness of the underlying.  As such, and in contrast to lecture, we will need to allow for varying insurances costs.  For the sake of full generality, we will also allow for varying levels of insurance as well.
+Exercises
+Please copy/paste your code from the previous problem.  Then add three lines outside the loop to accomplish the following.
+Store the costs of the puts (as a percentage of ETF value) in the vector c=[0.005 ; 0.01 ; 0.02 ; 0.03 ; 0.04]
+Store the strike prices (as a percentage of ETF value) in the vector k=[0.98 ; 0.95 ; 0.95 ; 0.90 ; 0.90]
+Initialize a vector rp_ins, in which you will store the return on the insured portfolio.
+Please add the following to the code inside your loop (see lecture notes for details).
+A line that computes the return on each put option.
+A line that computes the return on each insured position.
+A line that computes the overall return on the insured portfolio and stores it in the appropriate location in rp_ins.
+The assessment will test whether or not you have computed insured portfolio returns correctly, with a seed (set outside the loop) of 78.  Once you are sure you are computing insured portfolio returns correctly, please add the following to the end of your code (i.e. after the loop) to compare the distribution of insured and uninsured returns.
+histogram(rp,'Normalization','probability')
+hold on
+histogram(rp_ins,'Normalization','probability')
+legend('Uninsured','Insured')
+
+mu = [ 0.012; 0.05; 0.065; 0.073; 0.13];
+
+sigma = [0.0003; 0.13; 0.154; 0.228; 0.364];
+
+R = [1 -0.22 -0.16 -0.23 0.07; -0.22 1 0.79 0.59 0.12; -0.16 0.79 1 0.78 0.31; -0.23 0.59 0.78 1 0.06; 0.07 0.12 0.31 0.06 1];
+
+S = diag(sigma);
+Sigma = S*R*S;
+
+% part 3
+L = chol(Sigma, 'lower');
+
+% part 4 
+rng(44);
+z = randn(5,1);
+
+%part 5 
+x  = mu +L*z;
+c=[0.005 ; 0.01 ; 0.02 ; 0.03 ; 0.04]
+ k=[0.98 ; 0.95 ; 0.95 ; 0.90 ; 0.90]
+ 
+w = [.1 .1 .3 .4 .1]';
+
+
+rp = zeros(25000,1);
+rp_ins = zeros(25000,1);
+
+rng(78);
+
+for i = 1:25000;
+    z = randn(5,1);
+    x=mu+L*z;
+    r_etf = exp(x)-1;
+    r_puts=(1./c).*max(k-exp(x),0)-1;
+    r_ins=c.*r_puts+(1-c).*r_etf;
+    rp(i) = sum(w.*r_etf);
+    rp_ins(i) = sum(w.*r_ins);
+end
+
+q5
+
+Preamble
+In this problem we will prepare to simulate variables  having joint cdf
+
+which we recognize as the Clayton copula with parameter .  Recall that the conditional cdf of , given that , is obtained by computing the partial derivative of , with respect to , and then viewing the result as a function of .  In other words, for a fixed value of  we have
+
+Exercises
+Lay the groundwork for simulating Clayton pairs in the case , by completing each of the following tasks.
+Use linspace to create a  vector of equally-spaced points in , and store the result in a variable named v_grid.
+Let  denote the conditional cdf of , given that .  Evaluate  at each point in v_grid and store the result in a variable named F1.
+Let  denote the conditional cdf of , given that .  Evaluate  at each point in v_grid and store the result in a variable named F2.
+Execute the commands plot(v_grid,F1,'k',v_grid,F2,'b--') and then legend('U=0.25','U=0.6') to visualize the two conditional cdfs.
+Let  denote the inverse of the function .  Note that in order to compute  we would start with the equation  and then re-arrange to isolate .  Compute  and store it in a variable named F1_inv.
+Let  denote the inverse of .  Compute  and store it in a variable named F2_inv.
+
+v_grid = linspace(0,1);
+% part 2 
+u = 0.25
+for i = 1:100
+    F1(i) = (((1-u)/(u^-6))^(-5/6)- (u)^(-5)+1)^(-1/5)
+end
+
+for i = 1:100
+    F1(i) = u^(-6)*(u^(-5)+(v_grid(i))^(-5)-1)^(-6/5)
+end
+u=0.6
+for i = 1:100
+    F2(i) = u^(-6)*(u^(-5)+(v_grid(i))^(-5)-1)^(-6/5)
+end
+u=0.25
+
+F1_inv = (((0.15)/(u^-6))^(-5/6)- (u)^(-5)+1)^(-1/5)
+
+u=0.6
+F2_inv = (((0.15)/(u^-6))^(-5/6)- (u)^(-5)+1)^(-1/5)
+
+
+q6
+Preamble
+In this problem we will write code to sample from the Clayton copula (with parameter ).  As discussed in lecture will begin with an independent pair of random numbers , and then transform it appropriately to obtain the (correlated) pair .
+Exercises
+Generate  pairs from the Clayton copula with , by completing the following tasks.
+Using a seed of 1844, generate two independent  vector of random numbers.  Name the vectors u and w, respectively.
+Execute scatter(u,w) to convince yourself that u and w do appear to be independent.
+Use the vectors u and w to create a vector v such that v(i) is drawn from the conditional distribution of , given that  is equal to u(i).  In other words, use inverse transform to transform w(i) into a drawing from the conditional distribution of , given that  is equal to u(i).  Your code from the previous problem will be useful here.
+Execute hist(u) to visualize the marginal distribution of .  Does it appear as though  is a random number?
+Execute hist(v) to visualize the marginal distribution of .  Does it appear as though  is a random number?
+Execute scatter(u,v) to visualize the relationship between  and .  Does it appear as though the components of u and v are independent?
+Compute the correlation between  and , given that  is below average.  That is, identify the components of u that are less than or equal 0.5 and store their locations in the vector I.  Then compute the correlation between u(I) and v(I) and store the result in the variable corr_lo.
+Compute the correlation between  and , given that  is above average, and store it in the variable corr_hi.
+Is your scatterplot consistent with the correlations you comput
+
+
+rng(1844);
+u = rand(1,10000);
+w = rand(1,10000);
+v_grid = linspace(0,1);
+% part 2 
+
+for i = 1:10000
+    v(i) = (((w(i))/((u(i))^-6))^(-5/6)- (u(i))^(-5)+1)^(-1/5);
+end
+
+% part 6
+below_average_u = u <= 0.5;
+
+I = find(below_average_u);
+v_new= v(I);
+u_new = u(I);
+corr_low = corrcoef(v_new,u_new);
+corr_lo= 0.8393;
+
+%part 7 
+% part 6
+below_average_u = u >0.5;
+
+Ier = find(below_average_u);
+v_new= v(Ier);
+u_new = u(Ier);
+corr_low = corrcoef(v_new,u_new)
+corr_hi= 0.5179
