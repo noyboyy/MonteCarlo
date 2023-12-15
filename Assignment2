@@ -1,0 +1,275 @@
+q1
+
+Preamble
+Recall that a linear congruential generator (LCG) is a random number generator based on a recursion of the form , where ,  and  are integers.  Further recall that we convert  (an integer) into  (which lives in ) via .  In this problem we are going to write a function that will output an arbitrarily long sequence from an arbitrary LCG.
+Exercise
+Write a function named LCG_terms that takes , , ,  and the desired number of terms  as inputs (and in that order), and returns the row vector  as output.  Recall that the general form of a Matlab function is:
+function output_name = function_name(input variables separated by commas)
+    %First Line of Code
+    %Second Line of Code
+    % Etc.
+end
+When you submit your script, my code will first test the output of your function in each of the following cases.  The first one is quite simple and designed to help you debug your code.  The second is more advanced and tests your output on the RANDU Generator. 
+The first  terms from  with .
+The first  terms from  with .
+
+
+function u = LCG_terms(a, c, m, x0, n)
+    u = zeros(1, n);
+    x_holder = x0
+    u(1) = (x0+0.5)/m
+    for i=2:n
+        x_holder = rem(a*x_holder+c,m);
+        x_pusher = (x_holder+0.5)/m;
+        u(i) = x_pusher;
+    end
+        
+        
+end
+
+q2
+Preamble
+In this problem we will use the Pearson  test to scrutinize the ouptut of the RANDU generator in one dimension.  To this end we are going to divide the unit interval into 10 sub-intervals of equal length, namely .  Then, we are going to count the number of points among  that lie in each sub-interval.
+Exercises
+The first line of your script will load a vector named u that contains the first 1000 terms produced by the RANDU generator with a seed of .
+Store the vector in the variable E, where  denotes the expected number of observations in bin .  The easiest way to do this is to first create a matrix of appropriate size using the command ones, and then multiply that matrix by an appropriate constant.
+Store the vector in the variable O, where  denotes the number of terms in the sequence that lie in the  bin.  Feel free to copy and paste the appropriate code from Week 1, no need to reinvent the wheel here.  But do note that your code will need to modified somewhat (e.g. we are looking at counts and not proportions).
+Store the vector  in the variable D, where .  Remember that ^2 and .^2 mean very different things in Matlab.
+Compute the value of the test statistic .  Note that my notation here is slightly different than that in the lecture notes.
+Compute the -value associated with the test of randomness, and store it in a variable named p.
+
+u=load('randu1000.txt');
+E = ones(1, 10);
+E=E*100
+%code i dont need but wrote cuz im a degen
+%num = length(L);
+%for i=1:num
+ %   for k=1:1000
+  %      holder(k) = u(k)>L(i) & u(k) < U(i);
+   % end
+    %changer = sum(holder);
+    %E(i) = changer
+
+%end
+%number2
+O = ones(1,10);
+L=[0:0.1:0.9] ;
+U=[0.1:0.1:1];
+num = length(L);
+for i=1:num
+    for k=1:1000
+        holder(k) = u(k)>L(i) & u(k) < U(i);
+    end 
+    changer = sum(holder);
+    O(i) = changer;
+
+end
+
+%number3
+D = ones(1,10);
+for i=1:10
+    D_holder = ((O(i)-E(i)).^2)/(E(i));
+    D(i) = D_holder;
+end
+
+%putting the t-statisitc together
+d = sum(D)
+
+%p-value
+p= 1-chi2cdf(d,9)
+
+q3
+Preamble
+In this problem we use the runs test to inspect the output of the RANDU generator.  To this end, recall that in lecture we argued that in order to compute the number of runs in the sequence  it suffices to:
+Convert the actual sequence into the "plus-minus" sequence.
+Count the number of times we observe the pattern .
+Count the number of times we observe the pattern .
+Add one.
+Counting the number of occurences of  and  tells us the number of up- and down-runs, respectively, but completely ignores the first run.  That is why we need to add one in the final step.
+Matlab isn't very good with symbols, so in what follows we are going to have to use  to represent  and  to represent .
+Exercises
+The first line of your script will load the first 1000 terms of the RANDU sequence, using the same seed as in previous questions.
+Let  denote the number of runs in a truly random sequence of length .  Compute the mean and standard deviation of , and store the results in variables named mu and sigma.
+Create a logical vector v, such that v[i]=1 if u[i+1]>u[i] and v[i]=0 if u[i+1]<u[i].  You could do this with a loop, or in one line by comparing the vectors [u(2) u(3) . . . u(1000)] and [u(1) u(2) . . . u(999)].
+The vector v now contains our re-labelled  sequence.  Execute the command d=diff(v) and inspect the first few terms of the output.  Does d(i)=1 correspond to an instance of  or ?  How about d(i)=-1?  And how about d(i)=0?
+Count the number of times we observe the pattern  and store the result in a variable named up_runs.  Then count the number of times we observe the pattern  and store the result in a variable named down_runs.  This is easy to do using sum and ==.
+Count the total number of runs and store the result in a variable named r.  Then compute the standardized number of runs and store the result in a variable named r_stan.
+Compute the -value associated with the runs test for randomness, and store the result in a variable named p.
+
+u=load('randu1000.txt');
+n=1000
+ner=n-1
+
+mu=(2*(n)-1)/3
+var= ((16*n)-29)/90
+sigma=var^(1/2)
+u1 = u(1:999);
+u2 = u(2:1000);
+for i=1:999
+    v(i)=u2(i)>u1(i);
+end
+%the diff v command for iii)
+d=diff(v);
+
+
+%up runs counter
+for i=1:998
+    upper(i) = d(i)==1;
+
+end
+up_runs = sum(upper)
+
+%down runs counter
+for i=1:998
+    downer(i) = d(i)==-1;
+
+end
+down_runs = sum(downer)
+
+r=down_runs+up_runs+1
+r_stan = (r-mu)/sigma
+
+p=2*(1-normcdf(r_stan))
+
+q4
+Preamble
+In this problem we will use the Pearson  test to scrutinize the ouptut of the RANDU generator in two dimensions.  To this end we are going to divide the unit square into 100 sub-squares of equal size, namely , , , .  Then, we are going to count the number of points among , , ,  that lie in each sub-square.  This is going to be a little trickier because you will need to use a nested loop, so I will provide you with as much guidance as I can.
+Exercises
+The first line of your script will load a vector named u that contains the first 20,000 terms produced by the RANDU generator with a seed of .
+Store the vectors  and  in variables named u1 and u2, respectively.
+Store the vectors  and  in variables named L and U, respectively.
+Construct a  matrix E such that E(i,j)= expected number of points in the rectangle [L(i),U(i)]  [L(j),U(j)].  The easiest way to do this is to first create a matrix of appropriate size using the command ones, and then multiply that matrix by an appropriate constant.
+Let  denote the number (not proportion) of points that lie in the rectangle .  Compute  and store it in a variable named x_test.  Note that the logical vector (0.3 <= u1 & u1 <= 0.4) will identify points whose first co-ordinate satisfies the desired condition, and the logical vector (0.7 <= u2 & u2 <= 0.8) will identify points whose second co-ordinate satisfies the desired condition.  Can you see how to use these two logical vectors to identify points that satisfy both conditions?
+Construct a  matrix O such that O(i,j) = observed number of points in the rectangle [L(i),U(i)]  [L(j),U(j)]. You will need to use a nested loop here - an outer loop over i and an inner loop over j (or vice versa).  As for the code inside the loop, make some simple modification to the code you used to compute x_test.
+Create the discrepancy matrix , such that .  Remember that ^2 and .^2 mean very different things in Matlab.
+Compute the value of the test statistic, namely , and store it in a variable named d.  Note that if D is a matrix then sum(D) will return a row vector containing the column sums of D (column sum simply means the sum of all elements in a given column).  Do you see how to use sum twice to compute ?
+Compute the -value associated with the test of randomness, and store it in a variable named p.
+
+u=load('randu20000.txt');
+lengthy=length(u)
+i=1
+u1i=1
+u2i=1
+u1 = Inf * ones(1,10000);
+u2 = Inf * ones(1,10000);
+while i < lengthy
+    u1(u1i)=u(i);
+    u1i=u1i+1;
+    i=i+1;
+    u2(u2i)=u(i);
+    u2i=u2i+1;
+    i=i+1;
+end
+
+L = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9]
+U = [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
+    
+
+%trying to do part 3
+E = ones(10, 10); 
+E = E*100
+%for i=1:10
+    %holder2= [L(i) U(j)]
+    %for j=1:10
+     %   holder1 = [L(j) U(j)]
+      %  matrix_multy = holder1 * holder2
+       % E(i,j) = matrix_multy
+ %   end
+%end
+
+%my attempt at iv
+O = zeros(1,100000);
+holder = zeros(1,100000);
+L=[0:0.1:0.9] ;
+U=[0.1:0.1:1];
+num = length(u1);
+for i=1:num
+    holder(i) = 0.3<=u1(i) & u1(i) <= 0.4 & 0.7<=u2(i) & u2(i)<=0.8;
+end 
+changer = sum(holder);
+changer;
+O(i) = changer;
+x_test=sum(O)
+
+
+%my attempt at v
+rotator = zeros(1,100000);
+O = zeros(10, 10);
+newL = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
+newU = [0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1]
+uu=length(newU)-1;
+num = length(u1);
+%for loop to fill in observation matrix
+for j=1:uu
+    for i=1:uu
+        for k=1:num
+            rotator(k) = newL(i)<=u1(k) & u1(k) <= newL(i+1) & newU(j)<=u2(k) & u2(k)<=newU(j+1);
+        end 
+        changer= sum(rotator);
+        O(i,j) = changer;
+        holder = zeros(1,10000);
+    end 
+end
+O
+
+
+%the discrepancy matrix
+D = zeros(10,10);
+for i=1:10
+    for j=1:10
+        D_holder = ((O(i,j)-E(i,j)).^2)/(E(i,j));
+        D(i,j) = D_holder;
+    end
+end
+D
+%putting the t-statisitc together
+for i=1:10
+    for j=1:10
+        d_adder(j)=D(i,j);
+    end
+    p(i)=sum(d_adder);
+end
+d=sum(p)
+
+
+%p-value
+p= (1-chi2cdf(d,99))
+
+
+q5Preamble
+We have seen that the RANDU generator passes one- and two-dimensional tests with flying colours.  In this problem we will scrutinize the output in three dimensions.  In fact, you will need to use actual Matlab (or Octave) to produce the plot that I am looking for, but this problem will at least ensure that your inputs to that plot are correct.  You will be plotting the first 5,000 triplets , , ,  and to this end you will require the vectors ,  and .
+Exercises
+The uneditable code in your script will generate the first  RANDU terms using a seed of .
+Store the vector  in the variable x.
+Store the vector  in the variable y.
+Store the vector  in the variable z.
+
+0=10113;
+n_terms=15000;
+x=[x0 Inf*ones(1,n_terms-1)];
+
+for i=1:n_terms-1
+    x(i+1)=rem(65539*x(i),2^32);
+end
+
+u=(x+0.5)/(2^32);
+
+x = zeros(1, 5000);
+y = zeros(1, 5000);
+z= zeros(1, 5000);
+i=1
+xi=1
+yi=1
+zi=1
+lengthy=length(u)
+while i < 15000
+    x(xi)=u(i);
+    i=i+1;
+    xi=xi+1;
+    y(yi)=u(i);
+    i=i+1;
+    yi=yi+1;
+    z(zi)=u(i);
+    i=i+1;
+    zi=zi+1;
+end
